@@ -1,28 +1,22 @@
-# my-knowledge
+<div align="center">
+  <h1>my knowledge</h1>
+  <p>A quiet blog built around finished writing.</p>
+  <p><a href="https://knowledge.you-find.me">knowledge.you-find.me</a></p>
+</div>
 
-A personal blog built around content. Publish finished Markdown and read a quiet chronological archive
-with keyword search.
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/screenshot-dark.jpg">
+  <img src="docs/assets/screenshot-light.jpg" alt="The my knowledge archive: a list of articles by date">
+</picture>
 
-- **Focused reading:** narrow pages, responsive diagrams, shareable UUID links, and light/dark themes.
-- **Expressive Markdown:** math, footnotes, repository cards, media, quotes, diffs, annotations, and
-  architecture diagrams. Rich-text and source editing preserve supported content.
-- **Owner controls:** browser authoring and visibility changes; anonymous readers see public articles.
-- **Multilingual content:** canonical Chinese with optional English and Japanese editions.
+## Features
 
-## How it works
+- **Focused reading** — narrow pages, shareable links, light and dark themes
+- **Expressive Markdown** — math, footnotes, diagrams, repository cards and media
+- **Multilingual** — Chinese, with optional English and Japanese editions
+- **Open API and MCP** — `https://knowledge.you-find.me/api/mcp`, signed in through you-find.me
 
-TanStack Start runs on Cloudflare Workers. R2 owns Markdown, D1 indexes metadata and
-visibility, and KV caches derived data. Local tools produce content; the service validates and publishes it.
-
-```mermaid
-flowchart LR
-  Writing[Local writing or browser] --> API[Authenticated REST / MCP]
-  API --> Writer[Per-article writer]
-  Writer --> R2[Canonical Chinese in R2]
-  R2 --> D1[Publish D1 metadata]
-```
-
-## Run locally
+## Develop
 
 ```sh
 pnpm install
@@ -30,11 +24,6 @@ cp apps/web/.env.example apps/web/.dev.vars
 pnpm dev
 ```
 
-Configure `.dev.vars`, including `BETTER_AUTH_URL=http://localhost:8787`. See [Deployment](docs/DEPLOYMENT.md) for bindings and secrets.
+TanStack Start on Cloudflare Workers, with R2, D1 and KV · [Documentation](docs/README.md)
 
-## Integrations
-
-Connect MCP clients to `https://knowledge.you-find.me/api/mcp`; the client discovers the you-find.me gateway and signs the owner in through OAuth.
-See [MCP](docs/MCP.md), [REST API](docs/API.md), and the [documentation index](docs/README.md).
-
-Apache-2.0 · [License](LICENSE).
+Apache-2.0 · Part of [Vesper](https://github.com/vesper-shop)
