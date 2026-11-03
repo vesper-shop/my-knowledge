@@ -12,7 +12,6 @@ vi.mock("@tanstack/react-start/server", () => ({
   getRequest: reads.request,
   getRequestHeaders: reads.headers,
 }));
-vi.mock("cloudflare:workers", () => ({ env: { ALLOWED_EMAIL: "owner@example.com" } }));
 vi.mock("@/auth/server", () => ({ createAuth: reads.createAuth }));
 
 beforeEach(() => {
@@ -34,20 +33,17 @@ it("does not authorize an unverified session cookie", async () => {
   expect(reads.session).toHaveBeenCalledOnce();
 });
 
-it.each([
-  ["OWNER@example.com", "owner"],
-  ["other@example.com", "anonymous"],
-])("authorizes verified email %s as %s", async (email, principal) => {
+it("authorizes a verified session as the owner", async () => {
   reads.headers.mockReturnValue(new Headers({ cookie: "better-auth.session_token=verified" }));
-  reads.session.mockResolvedValue({ user: { email } });
-  expect(await getPrincipal()).toBe(principal);
+  reads.session.mockResolvedValue({ user: { id: "owner-id" } });
+  expect(await getPrincipal()).toBe("owner");
 });
 
 it("verifies the session once per request", async () => {
   const request = new Request("https://knowledge.example.com");
   reads.request.mockReturnValue(request);
   reads.headers.mockReturnValue(new Headers({ cookie: "better-auth.session_token=verified" }));
-  reads.session.mockResolvedValue({ user: { email: "owner@example.com" } });
+  reads.session.mockResolvedValue({ user: { id: "owner-id" } });
   expect(await Promise.all([getPrincipal(), getPrincipal()])).toEqual(["owner", "owner"]);
   expect(reads.session).toHaveBeenCalledOnce();
   reads.request.mockReturnValue(new Request("https://knowledge.example.com"));

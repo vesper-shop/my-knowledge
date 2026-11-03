@@ -10,7 +10,6 @@ import { authSchema } from "@/db/schema";
 
 async function authBuilder(): Promise<Auth> {
   const bindings = authBindingsSchema.parse(env);
-  const allowedEmail = bindings.ALLOWED_EMAIL.toLowerCase();
   return betterAuth<BetterAuthOptions>({
     plugins: [
       genericOAuth({
@@ -24,6 +23,7 @@ async function authBuilder(): Promise<Auth> {
             scopes: ["openid", "profile", "email"],
             tokenEndpointAuth: { method: "client_secret_basic" },
             pkce: true,
+            disableSignUp: true,
           },
         ],
       }),
@@ -36,21 +36,11 @@ async function authBuilder(): Promise<Auth> {
       schema: authSchema,
     }),
     account: {
-      accountLinking: { trustedProviders: ["you-find-me"] },
+      accountLinking: { enabled: false },
     },
     advanced: {
       ipAddress: {
         ipAddressHeaders: ["cf-connecting-ip"],
-      },
-    },
-    databaseHooks: {
-      user: {
-        create: {
-          before: async (newUser) => {
-            if (newUser.email.toLowerCase() !== allowedEmail) return false;
-            return { data: newUser };
-          },
-        },
       },
     },
   });
