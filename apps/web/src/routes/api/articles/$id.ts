@@ -21,7 +21,7 @@ async function readArticle({
   request: Request;
   params: { id: string };
 }) {
-  if (!(await isOwnerRequest(env, request))) {
+  if (!(await isOwnerRequest(request))) {
     return Response.json(
       { error: "Unauthorized" },
       { status: 401, headers: { "WWW-Authenticate": "Bearer" } },
@@ -40,7 +40,7 @@ async function updateArticle({
   request: Request;
   params: { id: string };
 }) {
-  if (!(await isOwnerRequest(env, request))) {
+  if (!(await isOwnerRequest(request))) {
     return Response.json(
       { error: "Unauthorized" },
       { status: 401, headers: { "WWW-Authenticate": "Bearer" } },
@@ -112,7 +112,7 @@ async function removeArticle({
   request: Request;
   params: { id: string };
 }) {
-  if (!(await isOwnerRequest(env, request))) {
+  if (!(await isOwnerRequest(request))) {
     return Response.json(
       { error: "Unauthorized" },
       { status: 401, headers: { "WWW-Authenticate": "Bearer" } },

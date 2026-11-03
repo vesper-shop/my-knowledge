@@ -12,7 +12,6 @@ vi.mock("cloudflare:workers", () => ({
   env: {
     BETTER_AUTH_SECRET: "a-secret-with-at-least-32-characters",
     BETTER_AUTH_URL: "https://knowledge.example.com",
-    YOU_FIND_ME_CLIENT_SECRET: "client-secret",
     DB: {},
   },
 }));

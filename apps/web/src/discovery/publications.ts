@@ -76,7 +76,7 @@ export function createLlmsText(articles: readonly ArticleSummary[], origin: URL)
     "",
     "## API",
     "",
-    `- [REST API](${new URL("/api/openapi.json", origin).href}): ${new URL("/api", origin).href} for articles (list, search, read, write) and tags. Every route requires \`Authorization: Bearer <API key>\` or the owner session.`,
+    `- [REST API](${new URL("/api/openapi.json", origin).href}): ${new URL("/api", origin).href} for articles (list, search, read, write) and tags. Every route requires \`Authorization: Bearer <access token>\` issued by you-find.me or the owner session.`,
     `- [MCP](${new URL("/api/mcp", origin).href}): Stateless MCP endpoint with the same Bearer key.`,
     "",
     "## Articles",

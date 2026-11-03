@@ -4,8 +4,6 @@ import { resolveInterfaceI18n } from "./i18n/registry";
 
 export { ArticleWriter } from "./articles/writer";
 
-export { ApiKeyDurableObject } from "./auth/api-key-object";
-
 const discoveryLinks = [
   '</.well-known/api-catalog>; rel="api-catalog"',
   '</api/openapi.json>; rel="service-desc"; type="application/vnd.oai.openapi+json"',

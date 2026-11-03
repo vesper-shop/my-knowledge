@@ -21,7 +21,7 @@
     "BETTER_AUTH_URL": "https://knowledge.you-find.me"
   },
   "secrets": {
-    "required": ["BETTER_AUTH_SECRET", "YOU_FIND_ME_CLIENT_SECRET"]
+    "required": ["BETTER_AUTH_SECRET"]
   },
   "d1_databases": [
     {
@@ -49,10 +49,6 @@
   "durable_objects": {
     "bindings": [
       {
-        "name": "API_KEY",
-        "class_name": "ApiKeyDurableObject"
-      },
-      {
         "name": "ARTICLE_WRITER",
         "class_name": "ArticleWriter"
       }
@@ -61,7 +57,7 @@
   "exports": {
     "ApiKeyDurableObject": {
       "type": "durable-object",
-      "storage": "sqlite"
+      "state": "deleted"
     },
     "ArticleWriter": {
       "type": "durable-object",

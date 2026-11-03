@@ -1,7 +1,9 @@
 import { createMcpHandler, McpServer } from "@modelcontextprotocol/server";
 import { CfWorkerJsonSchemaValidator } from "@modelcontextprotocol/server/validators/cf-worker";
 
-import { verifyApiKey } from "@/auth/api-key";
+import { createMcpProtectedRequestHandler } from "@better-auth/mcp";
+
+import { RESOURCE_SERVER } from "@/auth/oauth";
 import {
   createArticleInput,
   createArticleOperation,
@@ -156,15 +158,9 @@ export async function handleMcp(env: CloudflareEnv, request: Request): Promise<R
   if (request.headers.has("mcp-session-id")) {
     return Response.json({ error: "MCP sessions are not supported." }, { status: 400 });
   }
-  if (!(await verifyApiKey(request, env.API_KEY))) {
-    return Response.json(
-      { error: "unauthorized" },
-      { status: 401, headers: { "WWW-Authenticate": "Bearer" } },
-    );
-  }
-  const handler = createMcpHandler(() => serverFor(env), {
-    legacy: "stateless",
-    responseMode: "auto",
-  });
-  return handler.fetch(request);
+  return createMcpProtectedRequestHandler(RESOURCE_SERVER, (verified) =>
+    createMcpHandler(() => serverFor(env), { legacy: "stateless", responseMode: "auto" }).fetch(
+      verified,
+    ),
+  )(request);
 }

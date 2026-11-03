@@ -13,7 +13,7 @@ import { articleCreateSchema, articleListQuerySchema } from "@/api/articles";
 import { isOwnerRequest } from "@/auth/owner";
 
 async function listArticles({ request }: { request: Request }) {
-  if (!(await isOwnerRequest(env, request))) {
+  if (!(await isOwnerRequest(request))) {
     return Response.json(
       { error: "Unauthorized" },
       { status: 401, headers: { "WWW-Authenticate": "Bearer" } },
@@ -39,7 +39,7 @@ async function listArticles({ request }: { request: Request }) {
 }
 
 async function createArticle({ request }: { request: Request }) {
-  if (!(await isOwnerRequest(env, request))) {
+  if (!(await isOwnerRequest(request))) {
     return Response.json(
       { error: "Unauthorized" },
       { status: 401, headers: { "WWW-Authenticate": "Bearer" } },

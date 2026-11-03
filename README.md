@@ -34,7 +34,7 @@ Configure `.dev.vars`, including `BETTER_AUTH_URL=http://localhost:8787`. See [D
 
 ## Integrations
 
-Connect MCP clients to `https://knowledge.you-find.me/api/mcp` with an owner-generated Bearer key.
+Connect MCP clients to `https://knowledge.you-find.me/api/mcp`; the client discovers the you-find.me gateway and signs the owner in through OAuth.
 See [MCP](docs/MCP.md), [REST API](docs/API.md), and the [documentation index](docs/README.md).
 
 Apache-2.0 · [License](LICENSE).

@@ -8,7 +8,6 @@ import { env } from "cloudflare:workers";
 import type { ReactNode } from "react";
 
 import { ReadingTrail } from "@/articles/components/reading-trail";
-import { ApiKeyAction } from "@/auth/components/api-key-action";
 import { AuthAction } from "@/auth/components/auth-action";
 import { LanguageAction } from "@/i18n/components/language-action";
 import { getInterfaceI18n } from "@/i18n/server";
@@ -96,11 +95,6 @@ function RootDocument({ children }: { children: ReactNode }) {
               >
                 <Plus aria-hidden="true" />
               </Link>
-            }
-            controls={
-              <>
-                <ApiKeyAction messages={i18n.messages.shell} />
-              </>
             }
           />
           <main>{children}</main>

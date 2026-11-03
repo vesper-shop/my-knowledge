@@ -6,8 +6,8 @@ const endpointArgument = process.argv[2];
 if (!endpointArgument) throw new Error("MCP contract endpoint is required");
 const endpoint = endpointArgument;
 const origin = new URL(endpoint).origin;
-const apiKey = process.env.MY_KNOWLEDGE_API_KEY;
-if (!apiKey) throw new Error("MY_KNOWLEDGE_API_KEY is required");
+const accessToken = process.env.MY_KNOWLEDGE_ACCESS_TOKEN;
+if (!accessToken) throw new Error("MY_KNOWLEDGE_ACCESS_TOKEN is required");
 
 const editionSummarySchema = z.strictObject({ title: z.string(), summary: z.string() });
 const editionSchema = editionSummarySchema.extend({ markdown: z.string() });
@@ -68,7 +68,7 @@ function modernRequest(
   return fetch(endpoint, {
     method: "POST",
     headers: {
-      authorization: `Bearer ${apiKey}`,
+      authorization: `Bearer ${accessToken}`,
       "content-type": "application/json",
       "mcp-method": method,
       ...(typeof params.name === "string" ? { "mcp-name": params.name } : {}),
@@ -179,7 +179,7 @@ const unauthorizedRest = await fetch(restEndpoint);
 assert.equal(unauthorizedRest.status, 401);
 assert.equal(unauthorizedRest.headers.get("www-authenticate"), "Bearer");
 const restList = await fetch(`${restEndpoint}?tags=engineering&limit=10`, {
-  headers: { authorization: `Bearer ${apiKey}` },
+  headers: { authorization: `Bearer ${accessToken}` },
 });
 assert.equal(restList.status, 200, await restList.clone().text());
 const restListBody = pageSchema.parse(await restList.json());
@@ -188,7 +188,7 @@ assert.deepEqual(
   [fixtureId, "22222222-2222-4222-8222-222222222222"],
 );
 const restArticle = await fetch(`${restEndpoint}/${fixtureId}`, {
-  headers: { authorization: `Bearer ${apiKey}` },
+  headers: { authorization: `Bearer ${accessToken}` },
 });
 assert.equal(restArticle.status, 200, await restArticle.clone().text());
 articleResultSchema.shape.structuredContent.parse(await restArticle.json());
@@ -255,7 +255,7 @@ const emptySearch = await callTool(
 assert.deepEqual(emptySearch.structuredContent.articles, []);
 
 // Exercise actual REST writes and MCP reads against the same article and version fields.
-const headers = { authorization: `Bearer ${apiKey}`, "content-type": "application/json" };
+const headers = { authorization: `Bearer ${accessToken}`, "content-type": "application/json" };
 const createdResponse = await fetch(restEndpoint, {
   method: "POST",
   headers,
@@ -395,7 +395,7 @@ async function legacyRequest(method: string, params: object, id?: number) {
     method: "POST",
     headers: {
       accept: "application/json, text/event-stream",
-      authorization: `Bearer ${apiKey}`,
+      authorization: `Bearer ${accessToken}`,
       "content-type": "application/json",
       ...(method === "initialize" ? {} : { "mcp-protocol-version": "2025-11-25" }),
     },
@@ -450,7 +450,7 @@ assert.equal(legacyArticle.isError, undefined);
 
 const session = await fetch(endpoint, {
   method: "POST",
-  headers: { authorization: `Bearer ${apiKey}`, "mcp-session-id": "unsupported-session" },
+  headers: { authorization: `Bearer ${accessToken}`, "mcp-session-id": "unsupported-session" },
 });
 assert.equal(session.status, 400);
 

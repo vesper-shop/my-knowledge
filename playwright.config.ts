@@ -6,7 +6,6 @@ const workerCommand = [
   "apps/web/node_modules/.bin/wrangler dev --local --persist-to apps/web/.wrangler/test-state --config apps/web/dist/server/wrangler.json",
   `--var BETTER_AUTH_URL:${baseURL}`,
   `--var BETTER_AUTH_SECRET:${authFixture.secret}`,
-  `--var YOU_FIND_ME_CLIENT_SECRET:${authFixture.youFindMeClientSecret}`,
 ].join(" ");
 
 export default defineConfig({

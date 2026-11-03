@@ -8,7 +8,7 @@ import { isOwnerRequest } from "@/auth/owner";
 const tagQuerySchema = z.object({ parent: z.string().min(1).optional() });
 
 async function listTags({ request }: { request: Request }) {
-  if (!(await isOwnerRequest(env, request))) {
+  if (!(await isOwnerRequest(request))) {
     return Response.json(
       { error: "Unauthorized" },
       { status: 401, headers: { "WWW-Authenticate": "Bearer" } },

@@ -12,20 +12,12 @@
   "durable_objects": {
     "bindings": [
       {
-        "name": "API_KEY",
-        "class_name": "ApiKeyDurableObject"
-      },
-      {
         "name": "ARTICLE_WRITER",
         "class_name": "ArticleWriter"
       }
     ]
   },
   "exports": {
-    "ApiKeyDurableObject": {
-      "type": "durable-object",
-      "storage": "sqlite"
-    },
     "ArticleWriter": {
       "type": "durable-object",
       "storage": "sqlite"

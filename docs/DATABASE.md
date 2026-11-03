@@ -2,7 +2,7 @@
 
 D1 stores identity, metadata, visibility and versions. Translations carry locale/source hash; stale editions are unreadable. Better Auth owns authentication.
 
-R2 owns knowledge/{id} Markdown. KV caches public editions by ID/hash/locale; errors propagate and misses read R2. API-key actors store credential digests.
+R2 owns knowledge/{id} Markdown. KV caches public editions by ID/hash/locale; errors propagate and misses read R2.
 
 Creation writes Chinese R2, then D1 and translations. Rollback checks R2 ETags.
 

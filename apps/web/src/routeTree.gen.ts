@@ -16,6 +16,7 @@ import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as RssDotxmlRouteImport } from './routes/rss[.]xml'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as DotwellKnownApiCatalogRouteImport } from './routes/[.]well-known/api-catalog'
+import { Route as DotwellKnownOauthProtectedResourceRouteImport } from './routes/[.]well-known/oauth-protected-resource'
 import { Route as ApiMcpRouteImport } from './routes/api/mcp'
 import { Route as ApiOpenapiDotjsonRouteImport } from './routes/api/openapi[.]json'
 import { Route as ApiTagsRouteImport } from './routes/api/tags'
@@ -24,7 +25,6 @@ import { Route as ArticlesNewRouteImport } from './routes/articles/new'
 import { Route as ApiArticlesIndexRouteImport } from './routes/api/articles/index'
 import { Route as ApiArticlesIdRouteImport } from './routes/api/articles/$id'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
-import { Route as ApiSettingsApiKeyRouteImport } from './routes/api/settings/api-key'
 import { Route as ArticlesIdOpengraphImageRouteImport } from './routes/articles/$id_/opengraph-image'
 
 const IndexRoute = IndexRouteImport.update({
@@ -62,6 +62,12 @@ const DotwellKnownApiCatalogRoute = DotwellKnownApiCatalogRouteImport.update({
   path: '/.well-known/api-catalog',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DotwellKnownOauthProtectedResourceRoute =
+  DotwellKnownOauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiMcpRoute = ApiMcpRouteImport.update({
   id: '/api/mcp',
   path: '/api/mcp',
@@ -102,11 +108,6 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiSettingsApiKeyRoute = ApiSettingsApiKeyRouteImport.update({
-  id: '/api/settings/api-key',
-  path: '/api/settings/api-key',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ArticlesIdOpengraphImageRoute =
   ArticlesIdOpengraphImageRouteImport.update({
     id: '/articles/$id_/opengraph-image',
@@ -122,6 +123,7 @@ export interface FileRoutesByFullPath {
   '/rss.xml': typeof RssDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/.well-known/api-catalog': typeof DotwellKnownApiCatalogRoute
+  '/.well-known/oauth-protected-resource': typeof DotwellKnownOauthProtectedResourceRoute
   '/api/mcp': typeof ApiMcpRoute
   '/api/openapi.json': typeof ApiOpenapiDotjsonRoute
   '/api/tags': typeof ApiTagsRoute
@@ -129,7 +131,6 @@ export interface FileRoutesByFullPath {
   '/articles/new': typeof ArticlesNewRoute
   '/api/articles/$id': typeof ApiArticlesIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/api/settings/api-key': typeof ApiSettingsApiKeyRoute
   '/articles/$id/opengraph-image': typeof ArticlesIdOpengraphImageRoute
   '/api/articles/': typeof ApiArticlesIndexRoute
 }
@@ -141,6 +142,7 @@ export interface FileRoutesByTo {
   '/rss.xml': typeof RssDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/.well-known/api-catalog': typeof DotwellKnownApiCatalogRoute
+  '/.well-known/oauth-protected-resource': typeof DotwellKnownOauthProtectedResourceRoute
   '/api/mcp': typeof ApiMcpRoute
   '/api/openapi.json': typeof ApiOpenapiDotjsonRoute
   '/api/tags': typeof ApiTagsRoute
@@ -148,7 +150,6 @@ export interface FileRoutesByTo {
   '/articles/new': typeof ArticlesNewRoute
   '/api/articles/$id': typeof ApiArticlesIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/api/settings/api-key': typeof ApiSettingsApiKeyRoute
   '/articles/$id/opengraph-image': typeof ArticlesIdOpengraphImageRoute
   '/api/articles': typeof ApiArticlesIndexRoute
 }
@@ -161,6 +162,7 @@ export interface FileRoutesById {
   '/rss.xml': typeof RssDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/.well-known/api-catalog': typeof DotwellKnownApiCatalogRoute
+  '/.well-known/oauth-protected-resource': typeof DotwellKnownOauthProtectedResourceRoute
   '/api/mcp': typeof ApiMcpRoute
   '/api/openapi.json': typeof ApiOpenapiDotjsonRoute
   '/api/tags': typeof ApiTagsRoute
@@ -168,7 +170,6 @@ export interface FileRoutesById {
   '/articles/new': typeof ArticlesNewRoute
   '/api/articles/$id': typeof ApiArticlesIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/api/settings/api-key': typeof ApiSettingsApiKeyRoute
   '/articles/$id_/opengraph-image': typeof ArticlesIdOpengraphImageRoute
   '/api/articles/': typeof ApiArticlesIndexRoute
 }
@@ -182,6 +183,7 @@ export interface FileRouteTypes {
     | '/rss.xml'
     | '/sitemap.xml'
     | '/.well-known/api-catalog'
+    | '/.well-known/oauth-protected-resource'
     | '/api/mcp'
     | '/api/openapi.json'
     | '/api/tags'
@@ -189,7 +191,6 @@ export interface FileRouteTypes {
     | '/articles/new'
     | '/api/articles/$id'
     | '/api/auth/$'
-    | '/api/settings/api-key'
     | '/articles/$id/opengraph-image'
     | '/api/articles/'
   fileRoutesByTo: FileRoutesByTo
@@ -201,6 +202,7 @@ export interface FileRouteTypes {
     | '/rss.xml'
     | '/sitemap.xml'
     | '/.well-known/api-catalog'
+    | '/.well-known/oauth-protected-resource'
     | '/api/mcp'
     | '/api/openapi.json'
     | '/api/tags'
@@ -208,7 +210,6 @@ export interface FileRouteTypes {
     | '/articles/new'
     | '/api/articles/$id'
     | '/api/auth/$'
-    | '/api/settings/api-key'
     | '/articles/$id/opengraph-image'
     | '/api/articles'
   id:
@@ -220,6 +221,7 @@ export interface FileRouteTypes {
     | '/rss.xml'
     | '/sitemap.xml'
     | '/.well-known/api-catalog'
+    | '/.well-known/oauth-protected-resource'
     | '/api/mcp'
     | '/api/openapi.json'
     | '/api/tags'
@@ -227,7 +229,6 @@ export interface FileRouteTypes {
     | '/articles/new'
     | '/api/articles/$id'
     | '/api/auth/$'
-    | '/api/settings/api-key'
     | '/articles/$id_/opengraph-image'
     | '/api/articles/'
   fileRoutesById: FileRoutesById
@@ -240,6 +241,7 @@ export interface RootRouteChildren {
   RssDotxmlRoute: typeof RssDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   DotwellKnownApiCatalogRoute: typeof DotwellKnownApiCatalogRoute
+  DotwellKnownOauthProtectedResourceRoute: typeof DotwellKnownOauthProtectedResourceRoute
   ApiMcpRoute: typeof ApiMcpRoute
   ApiOpenapiDotjsonRoute: typeof ApiOpenapiDotjsonRoute
   ApiTagsRoute: typeof ApiTagsRoute
@@ -247,7 +249,6 @@ export interface RootRouteChildren {
   ArticlesNewRoute: typeof ArticlesNewRoute
   ApiArticlesIdRoute: typeof ApiArticlesIdRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
-  ApiSettingsApiKeyRoute: typeof ApiSettingsApiKeyRoute
   ArticlesIdOpengraphImageRoute: typeof ArticlesIdOpengraphImageRoute
   ApiArticlesIndexRoute: typeof ApiArticlesIndexRoute
 }
@@ -301,6 +302,13 @@ declare module '@tanstack/react-router' {
       path: '/.well-known/api-catalog'
       fullPath: '/.well-known/api-catalog'
       preLoaderRoute: typeof DotwellKnownApiCatalogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof DotwellKnownOauthProtectedResourceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/mcp': {
@@ -359,13 +367,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/settings/api-key': {
-      id: '/api/settings/api-key'
-      path: '/api/settings/api-key'
-      fullPath: '/api/settings/api-key'
-      preLoaderRoute: typeof ApiSettingsApiKeyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/articles/$id_/opengraph-image': {
       id: '/articles/$id_/opengraph-image'
       path: '/articles/$id/opengraph-image'
@@ -384,6 +385,8 @@ const rootRouteChildren: RootRouteChildren = {
   RssDotxmlRoute: RssDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   DotwellKnownApiCatalogRoute: DotwellKnownApiCatalogRoute,
+  DotwellKnownOauthProtectedResourceRoute:
+    DotwellKnownOauthProtectedResourceRoute,
   ApiMcpRoute: ApiMcpRoute,
   ApiOpenapiDotjsonRoute: ApiOpenapiDotjsonRoute,
   ApiTagsRoute: ApiTagsRoute,
@@ -391,7 +394,6 @@ const rootRouteChildren: RootRouteChildren = {
   ArticlesNewRoute: ArticlesNewRoute,
   ApiArticlesIdRoute: ApiArticlesIdRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
-  ApiSettingsApiKeyRoute: ApiSettingsApiKeyRoute,
   ArticlesIdOpengraphImageRoute: ArticlesIdOpengraphImageRoute,
   ApiArticlesIndexRoute: ApiArticlesIndexRoute,
 }

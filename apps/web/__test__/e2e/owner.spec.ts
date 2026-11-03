@@ -1,4 +1,3 @@
-import { execFileSync } from "node:child_process";
 import { writeFile } from "node:fs/promises";
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page, type Request } from "@playwright/test";
@@ -190,140 +189,42 @@ test("keeps article editing aligned with the title without a masthead", async ({
   await expect(edit).toBeVisible();
 });
 
-test("expands owner controls beside the preferences", async ({ page, request }, testInfo) => {
-  expect((await request.put("/api/settings/api-key")).status()).toBe(200);
+test("expands owner controls beside the preferences", async ({ page }, testInfo) => {
   await page.goto("/");
 
   await page.locator(".site-actions").hover();
   await expect(page.locator(".site-extra-actions")).toBeHidden();
   await page.getByRole("button", { name: "更多操作", exact: true }).click();
-  const credentialAction = page.getByRole("button", { name: "重新生成 API 密钥" });
-  const themeAction = page.getByRole("button", { name: "切换主题" });
-  await expect(credentialAction).toBeVisible();
+  await expect(page.getByRole("button", { name: "切换主题" })).toBeVisible();
   await expect(page.locator(".article-visibility", { hasText: "private" }).first()).toBeVisible();
   await expect(page.getByRole("link", { name: "新建", exact: true })).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath("owner-header.png") });
-  const [credentialBounds, themeBounds] = await Promise.all([
-    credentialAction.boundingBox(),
-    themeAction.boundingBox(),
-  ]);
-  if (!credentialBounds || !themeBounds) throw new Error("Header action bounds are unavailable");
-  expect(Math.abs(credentialBounds.y - themeBounds.y)).toBeLessThan(3);
-
-  await credentialAction.click();
-  await expect(page.getByRole("alertdialog")).toContainText(
-    "当前 my-knowledge 密钥将立即失效并被替换。",
-  );
-  await page.getByRole("button", { name: "取消" }).click();
 });
 
-test("recovers API key status and shows first-generation failures", async ({ page }, testInfo) => {
-  let statusRequests = 0;
-  let generationRequests = 0;
-  await page.route("**/api/settings/api-key", async (route) => {
-    if (route.request().method() === "GET") {
-      statusRequests += 1;
-      await route.fulfill({
-        status: statusRequests === 1 ? 503 : 200,
-        json: statusRequests === 1 ? { error: "Unavailable" } : { configured: false },
-      });
-      return;
-    }
-    expect(route.request().method()).toBe("POST");
-    generationRequests += 1;
-    await route.fulfill({
-      status: generationRequests === 1 ? 503 : 200,
-      json:
-        generationRequests === 1
-          ? { error: "Unavailable" }
-          : { apiKey: `sk-${"a".repeat(43)}`, createdAt: "2026-09-12T00:00:00.000Z" },
-    });
-  });
-  await page.goto("/");
-  await page.getByRole("button", { name: "更多操作", exact: true }).click();
-  const retry = page.getByRole("button", { name: "无法读取 API 密钥状态，点击重试。" });
-  await expect(retry).toBeEnabled();
-  await retry.click();
-  const generate = page.getByRole("button", { name: "生成 API 密钥", exact: true });
-  await generate.click();
-  await expect(page.locator(".auth-feedback")).toContainText("无法生成 API 密钥，请重试。");
-  await expect(page.getByRole("alertdialog")).toHaveCount(0);
-  await page.screenshot({ path: testInfo.outputPath("api-key-failure.png") });
-  await generate.click();
-  await expect(page.getByRole("alertdialog")).toContainText(`sk-${"a".repeat(43)}`);
-  await expect(page.locator(".auth-feedback")).toHaveCount(0);
-  expect(statusRequests).toBe(2);
-  expect(generationRequests).toBe(2);
-  const errors = errorsByPage.get(page);
-  expect(errors).toHaveLength(2);
-  for (const error of errors ?? []) expect(error).toContain("503");
-  if (errors) errors.length = 0;
-});
-
-test("shares the generated Bearer credential across REST and MCP", async ({
+test("points unauthenticated REST and MCP clients at the you-find.me gateway", async ({
   request,
 }, testInfo) => {
   test.skip(testInfo.project.name !== "owner-desktop-light", "One API contract run is enough");
-  const credential = z
-    .object({ apiKey: z.string() })
-    .parse(await (await request.put("/api/settings/api-key")).json());
-  const authorization = `Bearer ${credential.apiKey}`;
-  const rest = await request.get("/api/articles?tags=engineering&limit=10", {
-    headers: { authorization },
+  const metadata = z
+    .object({ resource: z.string(), authorization_servers: z.array(z.string()) })
+    .parse(await (await request.get("/.well-known/oauth-protected-resource")).json());
+  expect(metadata).toMatchObject({
+    resource: "https://knowledge.you-find.me",
+    authorization_servers: ["https://you-find.me/api/auth"],
   });
-  expect(rest.status()).toBe(200);
-  const restBody = z
-    .object({ articles: z.array(z.object({ id: z.string() })) })
-    .parse(await rest.json());
-  expect(restBody.articles.map(({ id }) => id)).toEqual([
-    "11111111-1111-4111-8111-111111111111",
-    "22222222-2222-4222-8222-222222222222",
-  ]);
-  const searched = z.object({ articles: z.array(z.object({ id: z.string() })) }).parse(
-    await (
-      await request.get("/api/articles?search=engineering&limit=10", {
-        headers: { authorization },
-      })
-    ).json(),
-  );
-  expect(searched.articles.map(({ id }) => id)).toEqual(restBody.articles.map(({ id }) => id));
-  const tags = z
-    .object({ tags: z.array(z.object({ path: z.string(), count: z.number() })) })
-    .parse(await (await request.get("/api/tags", { headers: { authorization } })).json());
-  expect(tags.tags.map(({ path }) => path)).toContain("engineering");
+
+  const rest = await request.get("/api/articles?limit=1", {
+    headers: { authorization: "Bearer not-a-gateway-token" },
+  });
+  expect(rest.status()).toBe(401);
 
   const mcp = await request.post("/api/mcp", {
-    headers: {
-      authorization,
-      "content-type": "application/json",
-      "mcp-method": "server/discover",
-      "mcp-protocol-version": "2026-07-28",
-    },
-    data: {
-      jsonrpc: "2.0",
-      id: 1,
-      method: "server/discover",
-      params: {
-        _meta: {
-          "io.modelcontextprotocol/protocolVersion": "2026-07-28",
-          "io.modelcontextprotocol/clientCapabilities": {},
-        },
-      },
-    },
+    headers: { "content-type": "application/json" },
+    data: { jsonrpc: "2.0", id: 1, method: "server/discover", params: {} },
   });
-  expect(mcp.status()).toBe(200);
-  const mcpBody = z
-    .object({ result: z.object({ supportedVersions: z.array(z.string()) }) })
-    .parse(await mcp.json());
-  expect(mcpBody.result.supportedVersions).toEqual(["2026-07-28"]);
-  execFileSync(
-    process.execPath,
-    ["apps/web/__test__/scripts/mcp-contract.ts", "http://127.0.0.1:8787/api/mcp"],
-    {
-      env: { ...process.env, MY_KNOWLEDGE_API_KEY: credential.apiKey },
-      timeout: 20_000,
-      stdio: "pipe",
-    },
+  expect(mcp.status()).toBe(401);
+  expect(mcp.headers()["www-authenticate"]).toContain(
+    "https://knowledge.you-find.me/.well-known/oauth-protected-resource",
   );
 });
 

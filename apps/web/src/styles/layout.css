@@ -34,13 +34,6 @@
 .primary-navigation-link[aria-current="page"] {
   border-bottom-color: var(--primary);
 }
-.site-controls {
-  position: relative;
-  z-index: 50;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
 .page-shell {
   padding-top: 2rem;
   padding-bottom: 4rem;
@@ -126,10 +119,6 @@
   .page-shell {
     padding-top: 1.5rem;
     padding-bottom: 3rem;
-  }
-  .site-controls {
-    grid-column: 2;
-    grid-row: 1;
   }
   .site-navigation {
     grid-column: 1 / -1;
@@ -494,8 +483,7 @@ button,
 }
 .site-actions:hover .site-extra-actions,
 .site-actions:focus-within .site-actions,
-.site-preferences,
-.site-controls {
+.site-preferences {
   gap: 0.125rem;
 }
 .site-actions .primary-navigation-link,

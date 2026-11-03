@@ -6,14 +6,12 @@ import { useId, useRef, useState, type ReactNode } from "react";
 import { authClient } from "@/auth/client";
 
 export function SiteHeader({
-  controls,
   preferences,
   discovery,
   identity,
   action,
   label,
 }: {
-  controls: ReactNode;
   preferences: ReactNode;
   discovery: ReactNode;
   identity: ReactNode;
@@ -48,7 +46,6 @@ export function SiteHeader({
         <div className="site-extra-actions" hidden={!owner || !expanded} id={controlsId}>
           {discovery}
           {action}
-          <div className="site-controls">{controls}</div>
         </div>
         {owner ? (
           <Button
