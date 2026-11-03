@@ -26,7 +26,7 @@ export const en = {
     done: "Done",
     accountMenu: "Open account menu",
     signOut: "Sign out",
-    signInUnavailable: "Google One Tap was not displayed or was closed. Retry sign-in.",
+    signIn: "Sign in with you-find.me",
     signInFailed: "Sign-in could not be started. Please try again.",
     signOutFailed: "Sign-out failed. Please try again.",
   },

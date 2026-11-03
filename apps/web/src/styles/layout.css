@@ -120,9 +120,6 @@
   scroll-margin-top: 2rem;
 }
 @media (max-width: 720px) {
-  iframe[src^="https://accounts.google.com/gsi/iframe/"] {
-    color-scheme: normal;
-  }
   .page-shell {
     padding-inline: 1.5rem;
   }

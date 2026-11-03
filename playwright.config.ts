@@ -7,8 +7,7 @@ const workerCommand = [
   `--var BETTER_AUTH_URL:${baseURL}`,
   `--var ALLOWED_EMAIL:${authFixture.email}`,
   `--var BETTER_AUTH_SECRET:${authFixture.secret}`,
-  `--var GOOGLE_CLIENT_ID:${authFixture.googleClientId}`,
-  `--var GOOGLE_CLIENT_SECRET:${authFixture.googleClientSecret}`,
+  `--var YOU_FIND_ME_CLIENT_SECRET:${authFixture.youFindMeClientSecret}`,
 ].join(" ");
 
 export default defineConfig({

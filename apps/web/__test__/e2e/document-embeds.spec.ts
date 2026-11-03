@@ -1,7 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 import { z } from "zod";
-import { serveGoogle } from "./google";
 
 test("reads quote and Git diff dialects without losing source or executing HTML", async ({
   page,
@@ -13,7 +12,6 @@ test("reads quote and Git diff dialects without losing source or executing HTML"
     if (["error", "warning"].includes(message.type())) errors.push(message.text());
   });
   page.on("pageerror", (error) => errors.push(error.message));
-  await serveGoogle(page);
   if (testInfo.project.name.includes("reduced-motion"))
     await page.emulateMedia({ reducedMotion: "reduce" });
   if (!baseURL) throw new Error("Local Worker URL required");
@@ -104,7 +102,6 @@ test("copies code and reads a native Twitter card", async ({
     if (["error", "warning"].includes(message.type())) errors.push(message.text());
   });
   page.on("pageerror", (error) => errors.push(error.message));
-  await serveGoogle(page);
   await page.route("https://pbs.twimg.com/**", (route) =>
     route.fulfill({
       contentType: "image/svg+xml",

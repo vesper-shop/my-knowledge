@@ -2,14 +2,7 @@ import { buttonVariants } from "@my-knowledge/ui/components/button";
 import { Toaster } from "@my-knowledge/ui/components/toast";
 import { Plus } from "@my-knowledge/ui/icons";
 import { themeStorageKey } from "@my-knowledge/ui/lib/theme";
-import {
-  createRootRoute,
-  HeadContent,
-  Link,
-  Outlet,
-  Scripts,
-  useLoaderData,
-} from "@tanstack/react-router";
+import { createRootRoute, HeadContent, Link, Outlet, Scripts } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { env } from "cloudflare:workers";
 import type { ReactNode } from "react";
@@ -30,7 +23,6 @@ import appStyles from "@/styles/globals.css?url";
 
 const getShell = createServerFn({ method: "GET" }).handler(() => ({
   locale: getInterfaceI18n().code,
-  googleClientId: env.GOOGLE_CLIENT_ID,
   origin: new URL(env.BETTER_AUTH_URL).origin,
 }));
 
@@ -59,7 +51,6 @@ export const Route = createRootRoute({
 });
 
 function RootDocument({ children }: { children: ReactNode }) {
-  const { googleClientId } = useLoaderData({ from: "__root__" });
   const i18n = useInterfaceI18n();
 
   return (
@@ -78,6 +69,7 @@ function RootDocument({ children }: { children: ReactNode }) {
             label={i18n.messages.shell.moreActions}
             preferences={
               <div className="site-preferences">
+                <AuthAction messages={i18n.messages.shell} />
                 <LanguageAction />
                 <ThemeAction messages={i18n.messages.shell} />
               </div>
@@ -108,7 +100,6 @@ function RootDocument({ children }: { children: ReactNode }) {
             controls={
               <>
                 <ApiKeyAction messages={i18n.messages.shell} />
-                <AuthAction googleClientId={googleClientId} messages={i18n.messages.shell} />
               </>
             }
           />

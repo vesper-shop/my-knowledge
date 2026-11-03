@@ -1,10 +1,8 @@
 import { writeFile } from "node:fs/promises";
 import { expect, test } from "@playwright/test";
-import { serveGoogle } from "./google";
 import { serveMedia } from "./media";
 
 test("article list delivery samples", async ({ page }, testInfo) => {
-  await serveGoogle(page);
   const samples: { scenario: string; duration: number }[] = [];
   for (const scenario of ["list-direct", "list-click", "list-intent"]) {
     for (let index = -3; index < 15; index++) {
@@ -35,7 +33,6 @@ test("article list delivery samples", async ({ page }, testInfo) => {
 
 test("article delivery samples", async ({ page }, testInfo) => {
   await serveMedia(page);
-  await serveGoogle(page);
   const samples: { scenario: string; duration: number; ttfb?: number; bytes?: number }[] = [];
   for (const scenario of ["direct", "intent"]) {
     for (let index = -3; index < 15; index++) {
@@ -75,7 +72,6 @@ test("article delivery samples", async ({ page }, testInfo) => {
 });
 
 test("open graph image samples", async ({ page }, testInfo) => {
-  await serveGoogle(page);
   await page.goto("/articles/11111111-1111-4111-8111-111111111111");
   const url = await page.locator('meta[property="og:image"]').getAttribute("content");
   if (!url) throw new Error("Missing image URL");

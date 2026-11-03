@@ -4,7 +4,6 @@ import { randomUUID } from "node:crypto";
 import { expect, test } from "@playwright/test";
 import { getPlatformProxy } from "wrangler";
 import { fileURLToPath } from "node:url";
-import { serveGoogle } from "./google";
 
 const appDirectory = new URL("../../", import.meta.url);
 
@@ -29,7 +28,6 @@ function fixtureRow(id: string) {
 }
 
 test("keeps stored invalid embeds readable and editable", async ({ page }, testInfo) => {
-  await serveGoogle(page);
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   page.on("console", (message) => {
@@ -64,7 +62,6 @@ test("keeps stored invalid embeds readable and editable", async ({ page }, testI
 });
 
 test("shows recoverable error and not-found pages at reading width", async ({ page }, testInfo) => {
-  await serveGoogle(page);
   const errors: string[] = [];
   page.on("console", (message) => {
     if (message.type() === "error") errors.push(message.text());

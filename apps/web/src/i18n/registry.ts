@@ -27,7 +27,7 @@ export type InterfaceMessages = {
     done: string;
     accountMenu: string;
     signOut: string;
-    signInUnavailable: string;
+    signIn: string;
     signInFailed: string;
     signOutFailed: string;
   };

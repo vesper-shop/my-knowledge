@@ -25,7 +25,7 @@ export const ja = {
     done: "完了",
     accountMenu: "アカウントメニューを開く",
     signOut: "ログアウト",
-    signInUnavailable: "Google One Tap が表示されなかったか閉じられました。再試行してください。",
+    signIn: "you-find.me でログイン",
     signInFailed: "ログインを開始できませんでした。もう一度お試しください。",
     signOutFailed: "ログアウトできませんでした。もう一度お試しください。",
   },

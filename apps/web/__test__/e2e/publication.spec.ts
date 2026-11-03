@@ -1,7 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
-import { serveGoogle } from "./google";
 import { serveMedia } from "./media";
 
 const errorsByPage = new WeakMap<Page, string[]>();
@@ -11,7 +10,6 @@ test.beforeEach(async ({ page }, testInfo) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
   }
   await serveMedia(page);
-  await serveGoogle(page);
   const browserErrors: string[] = [];
   page.on("console", (message) => {
     if (message.type() === "error" || message.type() === "warning") {
@@ -112,23 +110,19 @@ test("keeps the list visible while an article loads and restores its position", 
   await page.screenshot({ path: testInfo.outputPath("list-after-article-return.png") });
 });
 
-test("prompts through Google One Tap without a login button or duplicated archive", async ({
-  page,
-}, testInfo) => {
+test("signs in through you-find.me without a duplicated archive", async ({ page }, testInfo) => {
+  let provider: unknown;
+  await page.route("**/api/auth/sign-in/social", async (route) => {
+    provider = route.request().postDataJSON().provider;
+    await route.fulfill({ json: { url: "/explore", redirect: false } });
+  });
   await page.goto("/explore");
-  await expect(page.getByRole("button", { name: "使用 Google 登录" })).toHaveCount(0);
-  await expect(page.locator("html")).toHaveAttribute("data-google-prompt", "shown");
-  await expect(page.locator("html")).toHaveAttribute("data-google-auto-select", "true");
   await expect(page.locator("main .article-list")).toHaveCount(0);
   await page.getByRole("searchbox", { name: "搜索文章" }).focus();
   await expect(page.locator(":focus-visible")).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath("search-focused.png") });
-  const response = await page.request.post("/api/auth/one-tap/callback", {
-    headers: { origin: "http://127.0.0.1:8787" },
-    data: { idToken: "invalid-fixture-token" },
-  });
-  expect(response.status()).toBe(400);
-  expect(response.headers()["set-cookie"]).toBeUndefined();
+  await page.getByRole("button", { name: "使用 you-find.me 登录" }).click();
+  await expect.poll(() => provider).toBe("you-find-me");
 });
 
 test("renders the current Japanese translation under a Japanese interface", async ({
@@ -553,23 +547,6 @@ test("retains search context and inherits Home settings without reading controls
   await expect(page.getByRole("searchbox")).toHaveValue("边界");
 });
 
-test("keeps One Tap failures out of the reading surface", async ({ page }, testInfo) => {
-  await page.goto("/");
-  await expect(page.locator("html")).toHaveAttribute("data-google-prompt-count", "1");
-  await page.evaluate(() => document.dispatchEvent(new Event("test-google-credential")));
-  await expect(page.locator(".auth-toast")).toHaveCount(0);
-  await expect(page.getByRole("alertdialog")).toHaveCount(0);
-  await expect(page.locator(".auth-feedback")).toHaveCount(0);
-  await page.screenshot({ path: testInfo.outputPath("sign-in-toast.png") });
-  await page.goto("/explore");
-  await expect(page).toHaveURL(/\/explore$/u);
-  await expect(page.locator(".auth-toast")).toHaveCount(0, { timeout: 7000 });
-  const errors = errorsByPage.get(page);
-  expect(errors).toHaveLength(1);
-  expect(errors?.[0]).toContain("400");
-  if (errors) errors.length = 0;
-});
-
 test("switches article list titles and summaries with the Home language setting", async ({
   page,
 }, testInfo) => {
@@ -587,31 +564,6 @@ test("switches article list titles and summaries with the Home language setting"
   await entry.click();
   await expect(page.locator("article")).toHaveAttribute("lang", "ja");
   await expect(page.locator(".site-controls")).toBeHidden();
-});
-
-test("does not show a toast when Google skips its prompt", async ({ page }) => {
-  await serveGoogle(page, false);
-  await page.goto("/");
-  await expect(page.locator(".auth-toast")).toHaveCount(0);
-  await expect(page.getByRole("alertdialog")).toHaveCount(0);
-  await expect(page.locator(".auth-toast")).toHaveCount(0, { timeout: 7000 });
-});
-
-test("keeps invalid-origin login failures out of the reading surface", async ({ page }) => {
-  await page.route("**/api/auth/one-tap/callback", (route) =>
-    route.fulfill({ status: 403, json: { message: "Invalid origin" } }),
-  );
-  await page.goto("/");
-  await expect(page.locator("html")).toHaveAttribute("data-google-prompt-count", "1");
-  await page.evaluate(() => document.dispatchEvent(new Event("test-google-credential")));
-  await expect(page.locator(".auth-toast")).toHaveCount(0);
-  await expect(page.getByRole("alertdialog")).toHaveCount(0);
-  await expect(page.locator(".auth-feedback")).toHaveCount(0);
-  await expect(page.locator(".auth-toast")).toHaveCount(0, { timeout: 7000 });
-  const errors = errorsByPage.get(page);
-  expect(errors).toHaveLength(1);
-  expect(errors?.[0]).toContain("403");
-  if (errors) errors.length = 0;
 });
 
 test("keeps navigation compact and copies a clean article link", async ({

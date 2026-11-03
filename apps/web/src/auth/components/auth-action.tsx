@@ -8,40 +8,13 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from "@my-knowledge/ui/components/popover";
-import { LogOut } from "@my-knowledge/ui/icons";
-import { createAuthClient } from "better-auth/react";
-import { oneTapClient } from "better-auth/client/plugins";
-import { useEffect, useMemo, useState } from "react";
+import { LogIn, LogOut } from "@my-knowledge/ui/icons";
+import { useEffect, useState } from "react";
 
 import { authClient } from "@/auth/client";
 import type { InterfaceMessages } from "@/i18n/registry";
 
-export function AuthAction({
-  messages,
-  googleClientId,
-}: {
-  messages: InterfaceMessages["shell"];
-  googleClientId: string;
-}) {
-  const oneTapAuth = useMemo(
-    () =>
-      createAuthClient({
-        plugins: [
-          oneTapClient({
-            clientId: googleClientId,
-            promptOptions: { maxAttempts: 0 },
-            additionalOptions: {
-              get color_scheme() {
-                return window.matchMedia("(max-width: 720px)").matches
-                  ? document.documentElement.dataset.theme
-                  : undefined;
-              },
-            },
-          }),
-        ],
-      }),
-    [googleClientId],
-  );
+export function AuthAction({ messages }: { messages: InterfaceMessages["shell"] }) {
   const { data: session, isPending } = authClient.useSession();
   const [error, setError] = useState<string>();
 
@@ -51,44 +24,18 @@ export function AuthAction({
     return () => window.clearTimeout(timeout);
   }, [error]);
 
-  useEffect(() => {
-    if (isPending || session) return;
-    const prompt = () => {
-      if (
-        document.visibilityState !== "visible" ||
-        document.documentElement.dataset.oneTapRequested
-      )
-        return;
-      document.documentElement.dataset.oneTapRequested = "true";
-      void oneTapAuth
-        .oneTap({
-          autoSelect: true,
-          callbackURL: window.location.pathname + window.location.search,
-          fetchOptions: {
-            onError: ({ error }) =>
-              setError(`${messages.signInFailed} (${error.status}: ${error.message})`),
-          },
-          onPromptNotification: (notification?: {
-            isNotDisplayed?: () => boolean;
-            isSkippedMoment?: () => boolean;
-          }) => {
-            if (notification?.isNotDisplayed?.() || notification?.isSkippedMoment?.())
-              setError(messages.signInUnavailable);
-          },
-        })
-        .catch((failure: unknown) => {
-          if (failure instanceof DOMException && failure.name === "AbortError") return;
-          setError(messages.signInFailed);
-        });
-    };
-    document.addEventListener("visibilitychange", prompt);
-    prompt();
-    return () => document.removeEventListener("visibilitychange", prompt);
-  }, [isPending, session, oneTapAuth, messages.signInFailed, messages.signInUnavailable]);
+  async function signIn() {
+    setError(undefined);
+    const response = await authClient.signIn.social({
+      provider: "you-find-me",
+      callbackURL: window.location.pathname + window.location.search,
+    });
+    if (response.error) setError(messages.signInFailed);
+  }
 
   async function signOut() {
     setError(undefined);
-    const response = await oneTapAuth.signOut();
+    const response = await authClient.signOut();
     if (response.error) {
       setError(messages.signOutFailed);
       return;
@@ -96,7 +43,21 @@ export function AuthAction({
     window.location.assign("/");
   }
 
-  if (isPending || !session) return null;
+  if (isPending) return null;
+
+  if (!session) {
+    return (
+      <Button
+        aria-label={messages.signIn}
+        onClick={signIn}
+        size="icon-sm"
+        title={error ?? messages.signIn}
+        variant="ghost"
+      >
+        <LogIn />
+      </Button>
+    );
+  }
 
   return (
     <Popover>

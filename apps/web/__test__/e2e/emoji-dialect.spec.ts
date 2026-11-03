@@ -1,7 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 import { z } from "zod";
-import { serveGoogle } from "./google";
 
 test("renders selected stickers inline and preserves shortcode examples", async ({
   page,
@@ -13,7 +12,6 @@ test("renders selected stickers inline and preserves shortcode examples", async 
     if (["error", "warning"].includes(message.type())) errors.push(message.text());
   });
   page.on("pageerror", (error) => errors.push(error.message));
-  await serveGoogle(page);
   // The local rate-limit fixture header must never reach third-party Cloudflare hosts.
   await page.route(
     /^https:\/\/(?:stickers\.fullyst\.com|assets\.stickers\.wiki|szm\.de5\.net)\//u,

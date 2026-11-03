@@ -25,7 +25,7 @@ export const zh = {
     done: "完成",
     accountMenu: "打开账户菜单",
     signOut: "退出登录",
-    signInUnavailable: "Google One Tap 未显示或已关闭，请重试登录。",
+    signIn: "使用 you-find.me 登录",
     signInFailed: "无法开始登录，请重试。",
     signOutFailed: "退出登录失败，请重试。",
   },

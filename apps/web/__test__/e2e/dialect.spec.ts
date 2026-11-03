@@ -2,8 +2,6 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 import { z } from "zod";
 
-import { serveGoogle } from "./google";
-
 test("renders footnotes, math and keyboard-scrollable tables", async ({
   page,
   playwright,
@@ -14,7 +12,6 @@ test("renders footnotes, math and keyboard-scrollable tables", async ({
     if (message.type() === "error" || message.type() === "warning") errors.push(message.text());
   });
   page.on("pageerror", (error) => errors.push(error.message));
-  await serveGoogle(page);
   if (testInfo.project.name === "phone-dark-reduced-motion") {
     await page.emulateMedia({ reducedMotion: "reduce" });
   }

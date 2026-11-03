@@ -4,7 +4,6 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page, type Request } from "@playwright/test";
 import { z } from "zod";
 
-import { serveGoogle } from "./google";
 import { serveMedia } from "./media";
 
 const errorsByPage = new WeakMap<Page, string[]>();
@@ -87,7 +86,6 @@ test("keeps failed drafts and rejects duplicate Save clicks", async ({ page }) =
 
 test.beforeEach(async ({ page }) => {
   await serveMedia(page);
-  await serveGoogle(page);
   const browserErrors: string[] = [];
   page.on("console", (message) => {
     if (message.type() === "error" || message.type() === "warning") {

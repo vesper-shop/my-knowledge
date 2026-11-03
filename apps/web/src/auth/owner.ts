@@ -4,6 +4,7 @@ import { env } from "cloudflare:workers";
 
 import { authBindingsSchema } from "@/auth/bindings";
 import { verifyApiKey } from "@/auth/api-key";
+import { verifyOwnerToken } from "@/auth/oauth";
 import { createAuth } from "@/auth/server";
 import type { Principal } from "@/auth/types";
 import { requestCache } from "@/request";
@@ -18,8 +19,9 @@ export const getPrincipal = requestCache(async (): Promise<Principal> => {
 });
 
 export async function isOwnerRequest(env: CloudflareEnv, request: Request): Promise<boolean> {
-  if (request.headers.has("authorization")) {
-    return verifyApiKey(request, env.API_KEY);
-  }
-  return (await getPrincipal()) === "owner";
+  const authorization = request.headers.get("authorization");
+  if (authorization === null) return (await getPrincipal()) === "owner";
+  return authorization.split(".").length === 3
+    ? verifyOwnerToken(request, authBindingsSchema.shape.ALLOWED_EMAIL.parse(env.ALLOWED_EMAIL))
+    : verifyApiKey(request, env.API_KEY);
 }
