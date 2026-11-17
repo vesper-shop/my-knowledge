@@ -1,9 +1,7 @@
 import { createMcpHandler, McpServer } from "@modelcontextprotocol/server";
 import { CfWorkerJsonSchemaValidator } from "@modelcontextprotocol/server/validators/cf-worker";
 
-import { createMcpProtectedRequestHandler } from "@better-auth/mcp";
-
-import { RESOURCE_SERVER } from "@/auth/oauth";
+import { isOwnerRequest } from "@/auth/owner";
 import {
   createArticleInput,
   createArticleOperation,
@@ -158,9 +156,18 @@ export async function handleMcp(env: CloudflareEnv, request: Request): Promise<R
   if (request.headers.has("mcp-session-id")) {
     return Response.json({ error: "MCP sessions are not supported." }, { status: 400 });
   }
-  return createMcpProtectedRequestHandler(RESOURCE_SERVER, (verified) =>
-    createMcpHandler(() => serverFor(env), { legacy: "stateless", responseMode: "auto" }).fetch(
-      verified,
-    ),
-  )(request);
+  if (!request.headers.has("authorization") || !(await isOwnerRequest(request)))
+    return Response.json(
+      { error: "Unauthorized." },
+      {
+        status: 401,
+        headers: {
+          "WWW-Authenticate": `Bearer resource_metadata="${new URL("/.well-known/oauth-protected-resource", request.url)}"`,
+        },
+      },
+    );
+  return createMcpHandler(() => serverFor(env), {
+    legacy: "stateless",
+    responseMode: "auto",
+  }).fetch(request);
 }

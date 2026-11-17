@@ -12,7 +12,7 @@ const repositoryCache = vi.hoisted(() => ({
 const articleRow = vi.hoisted(() => vi.fn());
 const principal = vi.hoisted(() => vi.fn());
 vi.mock("cloudflare:workers", () => ({
-  env: { BETTER_AUTH_URL: "https://knowledge.you-find.me", KNOWLEDGE_CACHE: repositoryCache },
+  env: { SITE_URL: "https://knowledge.you-find.me", KNOWLEDGE_CACHE: repositoryCache },
 }));
 vi.mock("@tanstack/react-start/server", () => ({
   getRequest: () => new Request("https://knowledge.you-find.me"),
@@ -198,7 +198,7 @@ it("resolves same-site URLs to authorized UUID links without a provider fetch", 
     urls: ["https://knowledge.you-find.me/articles/article-123"],
   });
   expect(articleRow).toHaveBeenCalledWith(
-    expect.objectContaining({ BETTER_AUTH_URL: "https://knowledge.you-find.me" }),
+    expect.objectContaining({ SITE_URL: "https://knowledge.you-find.me" }),
     "owner",
     "article-123",
   );
@@ -218,7 +218,7 @@ it("keeps missing or unauthorized article targets non-clickable", async () => {
     urls: ["https://knowledge.you-find.me/articles/private-id"],
   });
   expect(articleRow).toHaveBeenCalledWith(
-    expect.objectContaining({ BETTER_AUTH_URL: "https://knowledge.you-find.me" }),
+    expect.objectContaining({ SITE_URL: "https://knowledge.you-find.me" }),
     "anonymous",
     "private-id",
   );

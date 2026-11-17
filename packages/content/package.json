@@ -7,7 +7,7 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "hast-util-from-html": "2.0.3",
+    "hast-util-from-html": "2.1.0",
     "hast-util-sanitize": "5.0.2",
     "remark-frontmatter": "5.0.0",
     "remark-gfm": "4.0.1",

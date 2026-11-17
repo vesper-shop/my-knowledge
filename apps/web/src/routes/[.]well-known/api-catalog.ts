@@ -7,7 +7,7 @@ export const Route = createFileRoute("/.well-known/api-catalog")({
   server: {
     handlers: {
       GET: () => {
-        const origin = new URL(env.BETTER_AUTH_URL);
+        const origin = new URL(env.SITE_URL);
         return new Response(JSON.stringify(createApiCatalog(origin)), {
           headers: {
             "Content-Type":

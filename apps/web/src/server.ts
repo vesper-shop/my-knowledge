@@ -1,5 +1,6 @@
 import handler from "@tanstack/react-start/server-entry";
 
+import { readIndex } from "@/articles/persistence/store";
 import { resolveInterfaceI18n } from "./i18n/registry";
 
 export { ArticleWriter } from "./articles/writer";
@@ -40,17 +41,13 @@ export default {
       (url.pathname !== "/" && (articleId === null || articleId === "" || articleId.includes("/")))
     )
       return render(request, url);
+    const { articles } = await readIndex(env);
+    const article = articles.find((row) => row.id === articleId && row.visibility === "public");
     const version =
       articleId === null
-        ? await env.DB.prepare(
-            "SELECT count(*) || '-' || max(updatedAt) AS version FROM articles",
-          ).first<string>("version")
-        : await env.DB.prepare(
-            "SELECT updatedAt AS version FROM articles WHERE id = ? AND visibility = 'public'",
-          )
-            .bind(articleId)
-            .first<string>("version");
-    if (version === null) return render(request, url);
+        ? `${articles.length}-${articles.reduce((latest, row) => (row.updatedAt > latest ? row.updatedAt : latest), "")}`
+        : article && article.updatedAt;
+    if (!version) return render(request, url);
     const key = new URL(url);
     key.searchParams.set("__version", version);
     key.searchParams.set("__deployment", env.CF_VERSION_METADATA.id);

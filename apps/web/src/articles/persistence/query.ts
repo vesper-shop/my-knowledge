@@ -1,13 +1,11 @@
 import { canonicalizeTags, type ArticleSummary } from "@my-knowledge/content";
-import { and, desc, eq, lt, or, sql, type SQL } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/d1";
 import { z } from "zod";
 
 import type { ArticleListQuery, ArticlePage, TagCount } from "../types";
 import type { Principal } from "@/auth/types";
-import { articles } from "@/db/schema";
 
 import { articleSummary, type ArticleRow } from "./record";
+import { readIndex } from "./store";
 
 const cursorSchema = z.object({ createdAt: z.string(), id: z.string() });
 
@@ -20,51 +18,44 @@ function decodeCursor(cursor: string) {
   return cursorSchema.parse(parsed);
 }
 
-export function authorizedCondition(principal: Principal): SQL | undefined {
-  return principal === "anonymous" ? eq(articles.visibility, "public") : undefined;
-}
+const tagsOf = (row: ArticleRow) =>
+  z
+    .array(z.string())
+    .parse(JSON.parse(row.tagsJson))
+    .map((tag) => tag.toLocaleLowerCase("en-US"));
 
-const discoverableCondition = sql`not exists (
-  select 1 from json_each(${articles.tagsJson})
-  where lower(json_each.value) = 'daily' or instr(lower(json_each.value), 'daily/') = 1
-)`;
+const hasTag = (row: ArticleRow, tag: string) =>
+  tagsOf(row).some((name) => name === tag || name.startsWith(`${tag}/`));
+
+const discoverable = (row: ArticleRow) => !hasTag(row, "daily");
+
+export const authorized = (principal: Principal) => (row: ArticleRow) =>
+  principal !== "anonymous" || row.visibility === "public";
+
+const newestFirst = (a: ArticleRow, b: ArticleRow) =>
+  b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id);
 
 export async function listArticles(
   env: CloudflareEnv,
   principal: Principal,
   input: ArticleListQuery,
 ): Promise<ArticlePage> {
-  const filters: SQL[] = input.tags.length > 0 ? [] : [discoverableCondition];
-  const authorized = authorizedCondition(principal);
-  if (authorized) filters.push(authorized);
-  if (input.visibility) {
-    if (principal === "anonymous" && input.visibility === "private")
-      return { articles: [], nextCursor: null };
-    filters.push(eq(articles.visibility, input.visibility));
-  }
-  for (const tag of canonicalizeTags(input.tags)) {
-    const normalized = tag.toLocaleLowerCase("en-US");
-    filters.push(sql`exists (
-        select 1 from json_each(${articles.tagsJson})
-        where lower(json_each.value) = ${normalized}
-           or instr(lower(json_each.value), ${`${normalized}/`}) = 1
-      )`);
-  }
-  if (input.cursor) {
-    const cursor = decodeCursor(input.cursor);
-    const older = or(
-      lt(articles.createdAt, cursor.createdAt),
-      and(eq(articles.createdAt, cursor.createdAt), lt(articles.id, cursor.id)),
-    );
-    if (older) filters.push(older);
-  }
-
-  const rows = await drizzle(env.DB)
-    .select()
-    .from(articles)
-    .where(filters.length > 0 ? and(...filters) : undefined)
-    .orderBy(desc(articles.createdAt), desc(articles.id))
-    .limit(input.limit + 1);
+  if (principal === "anonymous" && input.visibility === "private")
+    return { articles: [], nextCursor: null };
+  const tags = canonicalizeTags(input.tags).map((tag) => tag.toLocaleLowerCase("en-US"));
+  const cursor = input.cursor ? decodeCursor(input.cursor) : null;
+  const rows = (await readIndex(env)).articles
+    .filter(authorized(principal))
+    .filter((row) => tags.length > 0 || discoverable(row))
+    .filter((row) => !input.visibility || row.visibility === input.visibility)
+    .filter((row) => tags.every((tag) => hasTag(row, tag)))
+    .filter(
+      (row) =>
+        !cursor ||
+        row.createdAt < cursor.createdAt ||
+        (row.createdAt === cursor.createdAt && row.id < cursor.id),
+    )
+    .sort(newestFirst);
   const pageRows = rows.slice(0, input.limit);
   const next = rows.length > input.limit ? pageRows.at(-1) : undefined;
   return {
@@ -74,12 +65,10 @@ export async function listArticles(
 }
 
 export async function listPublicArticleSummaries(env: CloudflareEnv): Promise<ArticleSummary[]> {
-  const rows = await drizzle(env.DB)
-    .select()
-    .from(articles)
-    .where(and(eq(articles.visibility, "public"), discoverableCondition))
-    .orderBy(desc(articles.createdAt), desc(articles.id));
-  return rows.map((row) => articleSummary(row));
+  return (await readIndex(env)).articles
+    .filter((row) => row.visibility === "public" && discoverable(row))
+    .sort(newestFirst)
+    .map((row) => articleSummary(row));
 }
 
 export async function searchArticles(
@@ -89,58 +78,34 @@ export async function searchArticles(
   limit: number,
 ): Promise<ArticleSummary[]> {
   const term = query.trim().toLocaleLowerCase("en-US");
-  const matches = or(
-    sql`instr(lower(${articles.title}), ${term}) > 0`,
-    sql`instr(lower(${articles.summary}), ${term}) > 0`,
-    sql`exists (
-      select 1 from json_each(${articles.tagsJson})
-      where instr(lower(json_each.value), ${term}) > 0
-    )`,
-  );
-  const rows = await drizzle(env.DB)
-    .select()
-    .from(articles)
-    .where(and(authorizedCondition(principal), discoverableCondition, matches))
-    .orderBy(desc(articles.createdAt), desc(articles.id))
-    .limit(limit);
-  return rows.map((row) => articleSummary(row));
+  return (await readIndex(env)).articles
+    .filter(authorized(principal))
+    .filter(discoverable)
+    .filter(
+      (row) =>
+        row.title.toLocaleLowerCase("en-US").includes(term) ||
+        row.summary.toLocaleLowerCase("en-US").includes(term) ||
+        tagsOf(row).some((tag) => tag.includes(term)),
+    )
+    .sort(newestFirst)
+    .slice(0, limit)
+    .map((row) => articleSummary(row));
 }
 
-export const tagCountQuery = `
-WITH RECURSIVE
-rawTags(articleId, fullPath) AS (
-  SELECT articles.id, lower(json_each.value)
-  FROM articles, json_each(articles.tagsJson)
-  WHERE (? = 0 OR articles.visibility = 'public')
-),
-paths(articleId, path, rest) AS (
-  SELECT
-    articleId,
-    CASE
-      WHEN instr(fullPath, '/') = 0 THEN fullPath
-      ELSE substr(fullPath, 1, instr(fullPath, '/') - 1)
-    END,
-    CASE
-      WHEN instr(fullPath, '/') = 0 THEN ''
-      ELSE substr(fullPath, instr(fullPath, '/') + 1)
-    END
-  FROM rawTags
-  UNION ALL
-  SELECT
-    articleId,
-    path || '/' || CASE WHEN instr(rest, '/') = 0 THEN rest ELSE substr(rest, 1, instr(rest, '/') - 1) END,
-    CASE WHEN instr(rest, '/') = 0 THEN '' ELSE substr(rest, instr(rest, '/') + 1) END
-  FROM paths
-  WHERE rest <> ''
-)
-SELECT path, COUNT(DISTINCT articleId) AS count
-FROM paths
-GROUP BY path
-ORDER BY path ASC`;
+export function countTags(rows: ArticleRow[]): TagCount[] {
+  const uses = rows.flatMap((row) =>
+    tagsOf(row).flatMap((tag) =>
+      tag.split("/").map((_, depth, parts) => ({
+        path: parts.slice(0, depth + 1).join("/"),
+        id: row.id,
+      })),
+    ),
+  );
+  return [...Map.groupBy(uses, (use) => use.path)]
+    .map(([path, tagged]) => ({ path, count: new Set(tagged.map((use) => use.id)).size }))
+    .sort((a, b) => (a.path < b.path ? -1 : 1));
+}
 
 export async function listTags(env: CloudflareEnv, principal: Principal): Promise<TagCount[]> {
-  const { results } = await env.DB.prepare(tagCountQuery)
-    .bind(principal === "anonymous" ? 1 : 0)
-    .all<TagCount>();
-  return results;
+  return countTags((await readIndex(env)).articles.filter(authorized(principal)));
 }

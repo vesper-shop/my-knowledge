@@ -201,16 +201,14 @@ test("expands owner controls beside the preferences", async ({ page }, testInfo)
   await page.screenshot({ path: testInfo.outputPath("owner-header.png") });
 });
 
-test("points unauthenticated REST and MCP clients at the you-find.me gateway", async ({
-  request,
-}, testInfo) => {
+test("points unauthenticated REST and MCP clients at Vesper", async ({ request }, testInfo) => {
   test.skip(testInfo.project.name !== "owner-desktop-light", "One API contract run is enough");
   const metadata = z
     .object({ resource: z.string(), authorization_servers: z.array(z.string()) })
     .parse(await (await request.get("/.well-known/oauth-protected-resource")).json());
   expect(metadata).toMatchObject({
     resource: "https://knowledge.you-find.me",
-    authorization_servers: ["https://you-find.me/api/auth"],
+    authorization_servers: ["https://noted-this.date/api/auth"],
   });
 
   const rest = await request.get("/api/articles?limit=1", {

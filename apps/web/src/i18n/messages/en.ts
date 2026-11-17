@@ -11,7 +11,7 @@ export const en = {
     theme: "Switch theme",
     accountMenu: "Open account menu",
     signOut: "Sign out",
-    signIn: "Sign in with you-find.me",
+    signIn: "Sign in with Vesper",
     signInFailed: "Sign-in could not be started. Please try again.",
     signOutFailed: "Sign-out failed. Please try again.",
   },

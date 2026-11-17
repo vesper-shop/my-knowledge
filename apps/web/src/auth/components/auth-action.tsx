@@ -11,11 +11,11 @@ import {
 import { LogIn, LogOut } from "@my-knowledge/ui/icons";
 import { useEffect, useState } from "react";
 
-import { authClient } from "@/auth/client";
+import { signIn as startSignIn, signOut as endSignOut, useOwner } from "@/auth/client";
 import type { InterfaceMessages } from "@/i18n/registry";
 
 export function AuthAction({ messages }: { messages: InterfaceMessages["shell"] }) {
-  const { data: session, isPending } = authClient.useSession();
+  const { owner: session, isPending, profile } = useOwner();
   const [error, setError] = useState<string>();
 
   useEffect(() => {
@@ -26,17 +26,12 @@ export function AuthAction({ messages }: { messages: InterfaceMessages["shell"] 
 
   async function signIn() {
     setError(undefined);
-    const response = await authClient.signIn.social({
-      provider: "you-find-me",
-      callbackURL: window.location.pathname + window.location.search,
-    });
-    if (response.error) setError(messages.signInFailed);
+    startSignIn(window.location.pathname + window.location.search);
   }
 
   async function signOut() {
     setError(undefined);
-    const response = await authClient.signOut();
-    if (response.error) {
+    if (!(await endSignOut())) {
       setError(messages.signOutFailed);
       return;
     }
@@ -65,17 +60,28 @@ export function AuthAction({ messages }: { messages: InterfaceMessages["shell"] 
         render={<Button aria-label={messages.accountMenu} size="icon-sm" variant="ghost" />}
       >
         <Avatar size="sm">
-          {session.user.image ? <AvatarImage alt="" src={session.user.image} /> : null}
-          <AvatarFallback>{session.user.name.slice(0, 1).toLocaleUpperCase()}</AvatarFallback>
+          {profile !== null && profile.image !== null ? (
+            <AvatarImage alt="" src={profile.image} />
+          ) : null}
+          <AvatarFallback>{profile === null ? "?" : profile.name.slice(0, 1)}</AvatarFallback>
         </Avatar>
       </PopoverTrigger>
       <PopoverContent align="end" sideOffset={10}>
-        <PopoverHeader>
-          <PopoverTitle>{session.user.name}</PopoverTitle>
-          <PopoverDescription className="max-w-52 truncate">
-            {session.user.email}
-          </PopoverDescription>
-        </PopoverHeader>
+        {profile === null ? null : (
+          <PopoverHeader>
+            <a
+              className="text-center hover:text-foreground"
+              href={`https://${profile.handle}.noted-this.date/`}
+              rel="noreferrer"
+              target="_blank"
+            >
+              <PopoverTitle>{profile.name}</PopoverTitle>
+              <PopoverDescription className="max-w-52 truncate">
+                @{profile.handle}
+              </PopoverDescription>
+            </a>
+          </PopoverHeader>
+        )}
         <Button className="w-full" onClick={signOut} size="sm" variant="outline">
           <LogOut data-icon="inline-start" />
           {messages.signOut}

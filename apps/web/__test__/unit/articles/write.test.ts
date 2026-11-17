@@ -7,8 +7,7 @@ import type { ArticleRow } from "@/articles/persistence/record";
 const writes = vi.hoisted(() => ({
   row: vi.fn(),
   read: vi.fn(),
-  set: vi.fn(),
-  result: vi.fn(),
+  update: vi.fn(),
   object: vi.fn(),
   put: vi.fn(),
   head: vi.fn(),
@@ -19,7 +18,6 @@ const writes = vi.hoisted(() => ({
 }));
 vi.mock("cloudflare:workers", () => ({
   env: {
-    DB: {},
     KNOWLEDGE_BUCKET: {
       get: writes.object,
       put: writes.put,
@@ -33,16 +31,15 @@ vi.mock("@/articles/persistence/document", () => ({
   readArticleRow: writes.row,
   readArticle: writes.read,
 }));
-vi.mock("drizzle-orm/d1", () => ({
-  drizzle: () => ({
-    update: () => ({ set: writes.set }),
-    select: () => ({ from: () => ({ where: writes.translations }) }),
-    delete: () => ({ where: () => ({ returning: () => ({ get: writes.removeRow }) }) }),
-  }),
+vi.mock("@/articles/persistence/store", () => ({
+  updateArticleIf: writes.update,
+  deleteArticleIf: writes.removeRow,
+  findTranslations: writes.translations,
+  insertArticle: vi.fn(),
+  saveTranslation: vi.fn(),
 }));
 beforeEach(() => {
   vi.resetAllMocks();
-  writes.set.mockReturnValue({ where: () => ({ returning: () => ({ get: writes.result }) }) });
 });
 
 it.each([undefined, "private"])(
@@ -67,7 +64,7 @@ it.each([undefined, "private"])(
       updatedAt: expect.any(String),
       ...(visibility === undefined ? {} : { visibility }),
     };
-    writes.result.mockResolvedValue(updated);
+    writes.update.mockResolvedValue(updated);
     await updateArticle(
       env,
       previous.id,
@@ -75,7 +72,7 @@ it.each([undefined, "private"])(
       document,
       visibility === "private" ? "private" : undefined,
     );
-    expect(writes.set).toHaveBeenCalledWith({
+    expect(writes.update).toHaveBeenCalledWith(env, previous.id, previous, {
       updatedAt: expect.any(String),
       ...(visibility === undefined ? {} : { visibility }),
     });
@@ -135,7 +132,7 @@ it("reports rollback failure when another writer replaces the canonical object",
     customMetadata: { contentHash: previous.contentHash },
   });
   writes.put.mockResolvedValue({ etag: "written" });
-  writes.result.mockRejectedValue(new Error("concurrent write"));
+  writes.update.mockRejectedValue(new Error("concurrent write"));
   writes.head.mockResolvedValue({ etag: "other-writer" });
   const document = await parseArticleDocuments({ zh: markdown.replace("Old body", "New body") });
   await expect(updateArticle(env, previous.id, previous.contentHash, document)).rejects.toThrow(
@@ -146,7 +143,7 @@ it("reports rollback failure when another writer replaces the canonical object",
 
 it("retries deletion after canonical objects were removed but cache cleanup failed", async () => {
   writes.row.mockResolvedValue(previous);
-  writes.result.mockResolvedValue({ id: previous.id });
+  writes.update.mockResolvedValue({ id: previous.id });
   writes.translations.mockResolvedValue([{ locale: "en", sourceHash: previous.contentHash }]);
   writes.object
     .mockResolvedValueOnce({
@@ -159,11 +156,11 @@ it("retries deletion after canonical objects were removed but cache cleanup fail
   writes.removeCache
     .mockRejectedValueOnce(new Error("Cache unavailable"))
     .mockResolvedValue(undefined);
-  writes.removeRow.mockResolvedValue({ id: previous.id });
+  writes.removeRow.mockResolvedValue(true);
   await expect(deleteArticle(env, previous.id, previous.contentHash)).rejects.toThrow(
     "Cache unavailable",
   );
-  expect(writes.set).toHaveBeenCalledWith({ visibility: "private" });
+  expect(writes.update).toHaveBeenCalledWith(env, previous.id, previous, { visibility: "private" });
   expect(writes.removeRow).not.toHaveBeenCalled();
   await expect(deleteArticle(env, previous.id, previous.contentHash)).resolves.toBe(true);
   expect(writes.removeObject).toHaveBeenCalledWith("knowledge/source/zh.md");
@@ -172,11 +169,11 @@ it("retries deletion after canonical objects were removed but cache cleanup fail
 
 it("hides an article before a canonical read fails during deletion", async () => {
   writes.row.mockResolvedValue(previous);
-  writes.result.mockResolvedValue({ id: previous.id });
+  writes.update.mockResolvedValue({ id: previous.id });
   writes.object.mockRejectedValue(new Error("R2 unavailable"));
   await expect(deleteArticle(env, previous.id, previous.contentHash)).rejects.toThrow(
     "R2 unavailable",
   );
-  expect(writes.set).toHaveBeenCalledWith({ visibility: "private" });
+  expect(writes.update).toHaveBeenCalledWith(env, previous.id, previous, { visibility: "private" });
   expect(writes.removeRow).not.toHaveBeenCalled();
 });

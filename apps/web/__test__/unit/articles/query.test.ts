@@ -1,30 +1,35 @@
-import { DatabaseSync } from "node:sqlite";
 import { describe, expect, it } from "vite-plus/test";
 
-import { tagCountQuery } from "@/articles/persistence/query";
+import { authorized, countTags } from "@/articles/persistence/query";
+
+const row = (id: string, tags: string[], visibility: "public" | "private") => ({
+  id,
+  title: id,
+  summary: "",
+  contentHash: id,
+  tagsJson: JSON.stringify(tags),
+  visibility,
+  createdAt: "2026-01-01T00:00:00.000Z",
+  updatedAt: "2026-01-01T00:00:00.000Z",
+});
+
+const rows = [
+  row("public-one", ["engineering/architecture", "engineering/testing/privacy"], "public"),
+  row("public-two", ["engineering/architecture"], "public"),
+  row("private-one", ["private/security"], "private"),
+];
 
 describe("article tag counts", () => {
   it("counts each article once for every hierarchical tag path", () => {
-    const database = new DatabaseSync(":memory:");
-    database.exec(`
-      CREATE TABLE articles (
-        id TEXT PRIMARY KEY,
-        tagsJson TEXT NOT NULL,
-        visibility TEXT NOT NULL
-      );
-      INSERT INTO articles (id, tagsJson, visibility) VALUES
-        ('public-one', '["engineering/architecture","engineering/testing/privacy"]', 'public'),
-        ('public-two', '["engineering/architecture"]', 'public'),
-        ('private-one', '["private/security"]', 'private');
-    `);
-
-    expect(database.prepare(tagCountQuery).all(1)).toEqual([
+    expect(countTags(rows.filter(authorized("anonymous")))).toEqual([
       { path: "engineering", count: 2 },
       { path: "engineering/architecture", count: 2 },
       { path: "engineering/testing", count: 1 },
       { path: "engineering/testing/privacy", count: 1 },
     ]);
-    expect(database.prepare(tagCountQuery).all(0)).toContainEqual({ path: "private", count: 1 });
-    database.close();
+    expect(countTags(rows.filter(authorized("owner")))).toContainEqual({
+      path: "private",
+      count: 1,
+    });
   });
 });

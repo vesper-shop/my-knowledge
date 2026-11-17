@@ -13,7 +13,7 @@ export const Route = createFileRoute("/robots.txt")({
             "Disallow: /api/",
             "Disallow: /articles/new",
             "",
-            `Sitemap: ${new URL("/sitemap.xml", env.BETTER_AUTH_URL).href}`,
+            `Sitemap: ${new URL("/sitemap.xml", env.SITE_URL).href}`,
             "",
           ].join("\n"),
           {

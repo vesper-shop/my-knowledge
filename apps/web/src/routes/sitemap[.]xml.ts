@@ -7,7 +7,7 @@ export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
       GET: async () => {
-        const origin = new URL(env.BETTER_AUTH_URL);
+        const origin = new URL(env.SITE_URL);
         const articles = await listPublicArticleSummaries(env);
         const entries = [
           { url: origin.href, lastModified: articles.at(0)?.updatedAt },

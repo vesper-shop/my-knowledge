@@ -62,7 +62,7 @@ regressed.
 ## Product invariants
 
 - This is one personal application, not a distributed platform.
-- R2 owns Markdown; D1 indexes metadata and visibility; KV is derived.
+- R2 owns Markdown and the article index (`knowledge/index.json`); KV holds sessions and derived caches.
 - Every submitted article starts public. Visibility changes require the shared API credential or the
   allowed-email browser session.
 - The web has Home (article chronology), Explore (keyword search), and Article only. Removed Articles and Graph routes return not found. The allowed-email owner may create, edit,

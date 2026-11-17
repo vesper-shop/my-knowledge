@@ -1,0 +1,78 @@
+{
+  "articles": [
+    {
+      "id": "11111111-1111-4111-8111-111111111111",
+      "title": "可扩展的知识边界",
+      "summary": "用稳定的内容模型承载不断增加的语言与表现形式。",
+      "contentHash": "4a108612c0ff79f3a4683a6c61f3005cb858315f64ea4b18b61cfa1bb4980d83",
+      "tagsJson": "[\"engineering/architecture\",\"knowledge/i18n\"]",
+      "visibility": "public",
+      "createdAt": "2026-08-15T08:00:00.000Z",
+      "updatedAt": "2026-08-16T08:00:00.000Z"
+    },
+    {
+      "id": "22222222-2222-4222-8222-222222222222",
+      "title": "相关实践",
+      "summary": "通过共享标签和明确链接保持知识关系可解释。",
+      "contentHash": "ff05da72f85e25930d01f0e144564d58c100a01e5fc86f467075b89f591f8c72",
+      "tagsJson": "[\"engineering/architecture\"]",
+      "visibility": "public",
+      "createdAt": "2026-08-14T08:00:00.000Z",
+      "updatedAt": "2026-08-15T08:00:00.000Z"
+    },
+    {
+      "id": "33333333-3333-4333-8333-333333333333",
+      "title": "私密删除夹具",
+      "summary": "只允许所有者读取并通过浏览器删除的测试文章。",
+      "contentHash": "24127f5139323ac615200058d1cc566fcc55d7fbd37563f93aa153992d3e3725",
+      "tagsJson": "[\"testing/privacy\"]",
+      "visibility": "private",
+      "createdAt": "2026-08-16T09:00:00.000Z",
+      "updatedAt": "2026-08-16T09:00:00.000Z"
+    }
+  ],
+  "translations": [
+    {
+      "articleId": "11111111-1111-4111-8111-111111111111",
+      "locale": "en",
+      "title": "Extensible Knowledge Boundaries",
+      "summary": "Use a stable content model for growing languages and presentation forms.",
+      "sourceHash": "4a108612c0ff79f3a4683a6c61f3005cb858315f64ea4b18b61cfa1bb4980d83"
+    },
+    {
+      "articleId": "11111111-1111-4111-8111-111111111111",
+      "locale": "ja",
+      "title": "拡張可能な知識の境界",
+      "summary": "安定したコンテンツモデルで、増え続ける言語と表現形式を支える。",
+      "sourceHash": "4a108612c0ff79f3a4683a6c61f3005cb858315f64ea4b18b61cfa1bb4980d83"
+    },
+    {
+      "articleId": "22222222-2222-4222-8222-222222222222",
+      "locale": "en",
+      "title": "Related Practice",
+      "summary": "Keep knowledge relationships explainable with tags and explicit links.",
+      "sourceHash": "ff05da72f85e25930d01f0e144564d58c100a01e5fc86f467075b89f591f8c72"
+    },
+    {
+      "articleId": "22222222-2222-4222-8222-222222222222",
+      "locale": "ja",
+      "title": "関連する実践",
+      "summary": "共有タグと明示的なリンクで知識の関係を説明可能に保つ。",
+      "sourceHash": "ff05da72f85e25930d01f0e144564d58c100a01e5fc86f467075b89f591f8c72"
+    },
+    {
+      "articleId": "33333333-3333-4333-8333-333333333333",
+      "locale": "en",
+      "title": "Private deletion fixture",
+      "summary": "A test article that only the owner can read and delete in the browser.",
+      "sourceHash": "24127f5139323ac615200058d1cc566fcc55d7fbd37563f93aa153992d3e3725"
+    },
+    {
+      "articleId": "33333333-3333-4333-8333-333333333333",
+      "locale": "ja",
+      "title": "非公開削除フィクスチャ",
+      "summary": "所有者だけがブラウザで閲覧し削除できるテスト記事。",
+      "sourceHash": "24127f5139323ac615200058d1cc566fcc55d7fbd37563f93aa153992d3e3725"
+    }
+  ]
+}

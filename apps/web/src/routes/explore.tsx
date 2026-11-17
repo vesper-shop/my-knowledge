@@ -21,7 +21,7 @@ const getExplore = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     const i18n = getInterfaceI18n();
     const page = {
-      canonical: new URL("/explore", env.BETTER_AUTH_URL).href,
+      canonical: new URL("/explore", env.SITE_URL).href,
       title: i18n.messages.search.title,
     };
     if (!data.query) return { ...page, articles: null };

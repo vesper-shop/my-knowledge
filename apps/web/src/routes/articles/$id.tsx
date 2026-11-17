@@ -35,8 +35,8 @@ const getArticleMetadataTags = createServerFn({ method: "GET" })
     const article = await getArticleMetadata(env, data.id);
     if (!article) return null;
     const edition = article.editions.zh;
-    const canonical = new URL(`/articles/${article.id}`, env.BETTER_AUTH_URL);
-    const socialImage = new URL(`/articles/${article.id}/opengraph-image`, env.BETTER_AUTH_URL);
+    const canonical = new URL(`/articles/${article.id}`, env.SITE_URL);
+    const socialImage = new URL(`/articles/${article.id}/opengraph-image`, env.SITE_URL);
     socialImage.searchParams.set("v", `${article.contentHash}-${articleOpenGraphVersion}`);
     return {
       canonical: canonical.href,
@@ -113,7 +113,7 @@ const getArticlePage = createServerFn({ method: "GET" })
               "@type": "BlogPosting",
               headline: article.editions.zh.title,
               description: article.editions.zh.summary,
-              url: new URL(`/articles/${article.id}`, env.BETTER_AUTH_URL).href,
+              url: new URL(`/articles/${article.id}`, env.SITE_URL).href,
               inLanguage: "zh-CN",
               datePublished: article.createdAt,
               dateModified: article.updatedAt,

@@ -14,7 +14,7 @@
 - **Focused reading** — narrow pages, shareable links, light and dark themes
 - **Expressive Markdown** — math, footnotes, diagrams, repository cards and media
 - **Multilingual** — Chinese, with optional English and Japanese editions
-- **Open API and MCP** — `https://knowledge.you-find.me/api/mcp`, signed in through you-find.me
+- **Open API and MCP** — `https://knowledge.you-find.me/api/mcp`, signed in through Vesper
 
 ## Develop
 
@@ -24,6 +24,6 @@ cp apps/web/.env.example apps/web/.dev.vars
 pnpm dev
 ```
 
-TanStack Start on Cloudflare Workers, with R2, D1 and KV · [Documentation](docs/README.md)
+TanStack Start on Cloudflare Workers, with R2 and KV · [Documentation](docs/README.md)
 
 Apache-2.0 · Part of [Vesper](https://github.com/vesper-shop)

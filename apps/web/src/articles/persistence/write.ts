@@ -5,15 +5,19 @@ import type {
   TranslationLocale,
   Visibility,
 } from "@my-knowledge/content";
-import { and, eq } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/d1";
 
 import { deleteArticleCache } from "./cache";
 import { readArticleRow } from "./document";
 import { createStoredArticle, deleteStoredArticle, updateStoredArticle } from "./mutation";
 import { articleObjectKey, articleSummary, type ArticleRow } from "./record";
+import {
+  deleteArticleIf,
+  findTranslations,
+  insertArticle,
+  saveTranslation,
+  updateArticleIf,
+} from "./store";
 import type { StoredArticleDocument, WrittenArticleDocument } from "./types";
-import { articles, articleTranslations } from "@/db/schema";
 
 function nextUpdatedAt(previous: string): string {
   return new Date(Math.max(Date.now(), Date.parse(previous) + 1)).toISOString();
@@ -113,18 +117,17 @@ export async function createArticle(
       );
     },
     insertRow: async () => {
-      await drizzle(env.DB)
-        .insert(articles)
-        .values({
-          id,
-          title: chinese.title,
-          summary: chinese.summary,
-          contentHash: document.contentHash,
-          tagsJson: JSON.stringify(document.tags),
-          visibility: "public",
-          createdAt: timestamp,
-          updatedAt: timestamp,
-        });
+      const inserted = await insertArticle(env, {
+        id,
+        title: chinese.title,
+        summary: chinese.summary,
+        contentHash: document.contentHash,
+        tagsJson: JSON.stringify(document.tags),
+        visibility: "public",
+        createdAt: timestamp,
+        updatedAt: timestamp,
+      });
+      if (!inserted) throw new Error(`Article ${id} already exists`);
       return id;
     },
     cleanupNewVersion: async () => {
@@ -148,22 +151,10 @@ export async function updateArticle(
   const previous = await readArticleRow(env, "owner", id);
   if (!previous || previous.contentHash !== expectedHash) return undefined;
   if (document.contentHash === expectedHash) {
-    const updated = await drizzle(env.DB)
-      .update(articles)
-      .set({
-        updatedAt: nextUpdatedAt(previous.updatedAt),
-        ...(visibility === undefined ? {} : { visibility }),
-      })
-      .where(
-        and(
-          eq(articles.id, id),
-          eq(articles.contentHash, expectedHash),
-          eq(articles.updatedAt, previous.updatedAt),
-        ),
-      )
-      .returning()
-      .get();
-    return updated;
+    return updateArticleIf(env, id, previous, {
+      updatedAt: nextUpdatedAt(previous.updatedAt),
+      ...(visibility === undefined ? {} : { visibility }),
+    });
   }
   const chinese = document.editions.zh;
   const previousDocument = await readStoredDocument(
@@ -185,25 +176,14 @@ export async function updateArticle(
       );
     },
     switchRow: () =>
-      drizzle(env.DB)
-        .update(articles)
-        .set({
-          ...(visibility === undefined ? {} : { visibility }),
-          title: chinese.title,
-          summary: chinese.summary,
-          contentHash: document.contentHash,
-          tagsJson: JSON.stringify(document.tags),
-          updatedAt: nextUpdatedAt(previous.updatedAt),
-        })
-        .where(
-          and(
-            eq(articles.id, id),
-            eq(articles.contentHash, expectedHash),
-            eq(articles.updatedAt, previous.updatedAt),
-          ),
-        )
-        .returning()
-        .get(),
+      updateArticleIf(env, id, previous, {
+        ...(visibility === undefined ? {} : { visibility }),
+        title: chinese.title,
+        summary: chinese.summary,
+        contentHash: document.contentHash,
+        tagsJson: JSON.stringify(document.tags),
+        updatedAt: nextUpdatedAt(previous.updatedAt),
+      }),
     cleanupNewVersion: async () => {
       if (!written) return;
       await rollbackDocument(env.KNOWLEDGE_BUCKET, previousDocument, written);
@@ -226,11 +206,9 @@ export async function saveArticleTranslation(
 ): Promise<ArticleRow | undefined> {
   const article = await readArticleRow(env, "owner", id);
   if (!article || article.contentHash !== sourceHash) return;
-  const previousTranslation = await drizzle(env.DB)
-    .select()
-    .from(articleTranslations)
-    .where(and(eq(articleTranslations.articleId, id), eq(articleTranslations.locale, locale)))
-    .get();
+  const previousTranslation = (await findTranslations(env, id)).find(
+    (row) => row.locale === locale,
+  );
   if (
     edit &&
     (article.updatedAt !== edit.expectedUpdatedAt || previousTranslation?.sourceHash !== sourceHash)
@@ -251,46 +229,24 @@ export async function saveArticleTranslation(
   );
   let updated = article;
   try {
-    const db = drizzle(env.DB);
-    const saveTranslation = db
-      .insert(articleTranslations)
-      .values({
-        articleId: id,
-        locale,
-        title: translation.title,
-        summary: translation.summary,
-        sourceHash,
-      })
-      .onConflictDoUpdate({
-        target: [articleTranslations.articleId, articleTranslations.locale],
-        set: {
-          title: translation.title,
-          summary: translation.summary,
-          sourceHash,
+    const row = {
+      articleId: id,
+      locale,
+      title: translation.title,
+      summary: translation.summary,
+      sourceHash,
+    };
+    if (edit) {
+      const committed = await saveTranslation(env, row, {
+        expected: { contentHash: sourceHash, updatedAt: edit.expectedUpdatedAt },
+        values: {
+          updatedAt: nextUpdatedAt(article.updatedAt),
+          ...(edit.visibility === undefined ? {} : { visibility: edit.visibility }),
         },
       });
-    if (edit) {
-      const [, rows] = await db.batch([
-        saveTranslation,
-        db
-          .update(articles)
-          .set({
-            updatedAt: nextUpdatedAt(article.updatedAt),
-            ...(edit.visibility === undefined ? {} : { visibility: edit.visibility }),
-          })
-          .where(
-            and(
-              eq(articles.id, id),
-              eq(articles.contentHash, sourceHash),
-              eq(articles.updatedAt, edit.expectedUpdatedAt),
-            ),
-          )
-          .returning(),
-      ]);
-      const committed = rows[0];
       if (!committed) throw new Error("Article changed while saving its translation");
       updated = committed;
-    } else await saveTranslation;
+    } else await saveTranslation(env, row, null);
   } catch (error) {
     await rollbackDocument(env.KNOWLEDGE_BUCKET, previous, written);
     throw error;
@@ -318,18 +274,10 @@ export async function setArticleVisibility(
 ): Promise<ArticleSummary | undefined> {
   const previous = await readArticleRow(env, "owner", id);
   if (!previous || previous.contentHash !== expectedHash) return undefined;
-  const updated = await drizzle(env.DB)
-    .update(articles)
-    .set({ visibility, updatedAt: nextUpdatedAt(previous.updatedAt) })
-    .where(
-      and(
-        eq(articles.id, id),
-        eq(articles.contentHash, expectedHash),
-        eq(articles.updatedAt, previous.updatedAt),
-      ),
-    )
-    .returning()
-    .get();
+  const updated = await updateArticleIf(env, id, previous, {
+    visibility,
+    updatedAt: nextUpdatedAt(previous.updatedAt),
+  });
   if (!updated) return undefined;
   if (visibility === "private") {
     await deleteArticleCache(env.KNOWLEDGE_CACHE, id, expectedHash, articleLocales);
@@ -346,18 +294,7 @@ export async function deleteArticle(
   if (!previous || previous.contentHash !== expectedHash) return false;
   return deleteStoredArticle({
     hideRow: async () => {
-      const hidden = await drizzle(env.DB)
-        .update(articles)
-        .set({ visibility: "private" })
-        .where(
-          and(
-            eq(articles.id, id),
-            eq(articles.contentHash, expectedHash),
-            eq(articles.updatedAt, previous.updatedAt),
-          ),
-        )
-        .returning({ id: articles.id })
-        .get();
+      const hidden = await updateArticleIf(env, id, previous, { visibility: "private" });
       return Boolean(hidden);
     },
     cleanupVersion: async () => {
@@ -367,10 +304,7 @@ export async function deleteArticle(
         "zh",
         previous.contentHash,
       );
-      const translations = await drizzle(env.DB)
-        .select()
-        .from(articleTranslations)
-        .where(eq(articleTranslations.articleId, id));
+      const translations = await findTranslations(env, id);
       const translatedDocuments = await Promise.all(
         translations.map((translation) =>
           readStoredDocument(env.KNOWLEDGE_BUCKET, id, translation.locale, translation.sourceHash),
@@ -383,18 +317,7 @@ export async function deleteArticle(
       ]);
     },
     deleteRow: async () => {
-      const deleted = await drizzle(env.DB)
-        .delete(articles)
-        .where(
-          and(
-            eq(articles.id, id),
-            eq(articles.contentHash, expectedHash),
-            eq(articles.updatedAt, previous.updatedAt),
-          ),
-        )
-        .returning({ id: articles.id })
-        .get();
-      return Boolean(deleted);
+      return Boolean(await deleteArticleIf(env, id, previous));
     },
   });
 }

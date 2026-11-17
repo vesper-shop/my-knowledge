@@ -3,7 +3,7 @@ import { ChevronLeft } from "@my-knowledge/ui/icons";
 import { useLocation, useRouterState } from "@tanstack/react-router";
 import { useId, useRef, useState, type ReactNode } from "react";
 
-import { authClient } from "@/auth/client";
+import { useOwner } from "@/auth/client";
 
 export function SiteHeader({
   preferences,
@@ -18,7 +18,7 @@ export function SiteHeader({
   action: ReactNode;
   label: string;
 }) {
-  const { data: session, isPending } = authClient.useSession();
+  const { owner: session, isPending } = useOwner();
   const owner = !isPending && Boolean(session);
   const { pathname, searchStr } = useLocation();
   const renderedPathname = useRouterState({

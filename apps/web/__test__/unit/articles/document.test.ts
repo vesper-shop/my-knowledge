@@ -10,7 +10,6 @@ import {
   type ArticleRow,
   type ArticleTranslationRow,
 } from "@/articles/persistence/record";
-import { articles } from "@/db/schema";
 
 const reads = vi.hoisted(() => ({
   row: vi.fn<() => Promise<ArticleRow | undefined>>(),
@@ -22,7 +21,6 @@ const reads = vi.hoisted(() => ({
 
 vi.mock("cloudflare:workers", () => ({
   env: {
-    DB: {},
     KNOWLEDGE_CACHE: {},
     KNOWLEDGE_BUCKET: { get: reads.object },
   },
@@ -30,14 +28,13 @@ vi.mock("cloudflare:workers", () => ({
 vi.mock("@tanstack/react-start/server", () => ({
   getRequest: () => new Request("https://knowledge.example.com"),
 }));
-vi.mock("drizzle-orm/d1", () => ({
-  drizzle: () => ({
-    select: () => ({
-      from: (table: unknown) => ({
-        where: () => (table === articles ? { get: reads.row } : reads.translations()),
-      }),
-    }),
-  }),
+vi.mock("@/articles/persistence/store", () => ({
+  readIndex: async () => {
+    const article = await reads.row();
+    return { articles: article ? [article] : [], translations: [] };
+  },
+  findTranslations: () => reads.translations(),
+  listTranslations: () => reads.translations(),
 }));
 vi.mock("@/articles/persistence/cache", () => ({
   readArticleCache: reads.cache,

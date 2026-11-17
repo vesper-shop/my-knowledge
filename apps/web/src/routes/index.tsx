@@ -20,7 +20,7 @@ const getHome = createServerFn({ method: "GET" }).handler(async () => {
   });
   return {
     articles: await localizeArticles(env, page.articles, i18n.code),
-    origin: new URL(env.BETTER_AUTH_URL).origin,
+    origin: new URL(env.SITE_URL).origin,
   };
 });
 

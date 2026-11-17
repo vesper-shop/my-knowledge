@@ -122,8 +122,7 @@ const readTweet = requestCache(async (id: string): Promise<Tweet | undefined> =>
 
 const readArticleCard = requestCache(async (value: string): Promise<ArticleCard | null> => {
   const url = new URL(value);
-  if (url.origin !== new URL(env.BETTER_AUTH_URL).origin && url.origin !== articleOrigin)
-    return null;
+  if (url.origin !== new URL(env.SITE_URL).origin && url.origin !== articleOrigin) return null;
   const match = /^\/articles\/([^/]+)\/?$/u.exec(url.pathname);
   if (!match?.[1]) return null;
   const identity = decodeURIComponent(match[1]);

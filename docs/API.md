@@ -1,6 +1,6 @@
 # REST API
 
-Articles: `/api/articles` and `/api/articles/{uuid}`; tags: `/api/tags`. Use `Authorization: Bearer <access token>` issued by the you-find.me gateway (audience `https://knowledge.you-find.me`, scope `knowledge:write`) or the owner browser session. Invalid Bearer never falls back; unauthorized requests return `401` with WWW-Authenticate.
+Articles: `/api/articles` and `/api/articles/{uuid}`; tags: `/api/tags`. Use `Authorization: Bearer <access token>` issued by Vesper for the owner's workspace (checked against Vesper's `/api/workspace`) or the owner browser session. Invalid Bearer never falls back; unauthorized requests return `401` with WWW-Authenticate.
 
 | Method          | Contract                                                                  |
 | --------------- | ------------------------------------------------------------------------- |

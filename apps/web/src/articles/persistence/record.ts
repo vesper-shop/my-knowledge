@@ -1,12 +1,11 @@
 import { type ArticleSummary, normalizeLocale, visibilitySchema } from "@my-knowledge/content";
 import { z } from "zod";
 
-import { articles, articleTranslations } from "@/db/schema";
+import type { ArticleRow, ArticleTranslationRow } from "./store";
+
+export type { ArticleRow, ArticleTranslationRow };
 
 const stringArraySchema = z.array(z.string());
-
-export type ArticleRow = typeof articles.$inferSelect;
-export type ArticleTranslationRow = typeof articleTranslations.$inferSelect;
 
 export function articleObjectKey(articleId: string, locale: string): string {
   const normalized = normalizeLocale(locale);

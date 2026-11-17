@@ -1,10 +1,9 @@
 import { describe, expect, it } from "vite-plus/test";
 
 import { articleCreateSchema, articleListQuerySchema, articlePatchSchema } from "@/api/articles";
-import { articles } from "@/db/schema";
 
 describe("article REST contract", () => {
-  it("keeps visibility out of create input and defaults stored rows to public", () => {
+  it("keeps visibility out of create input", () => {
     expect(
       articleCreateSchema.safeParse({
         title: "Title",
@@ -14,7 +13,6 @@ describe("article REST contract", () => {
         visibility: "private",
       }).success,
     ).toBe(false);
-    expect(articles.visibility.default).toBe("public");
   });
 
   it("parses bounded pagination and comma-separated hierarchical tags", () => {

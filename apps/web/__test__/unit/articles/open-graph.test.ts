@@ -11,7 +11,7 @@ const reads = vi.hoisted(() => ({
 vi.mock("@/articles", () => ({ getArticleMetadata: reads.metadata }));
 vi.mock("cloudflare:workers", () => ({
   env: {
-    BETTER_AUTH_URL: "https://example.com",
+    SITE_URL: "https://example.com",
     KNOWLEDGE_CACHE: { get: reads.cache, put: reads.put },
     ASSETS: { fetch: reads.asset },
   },

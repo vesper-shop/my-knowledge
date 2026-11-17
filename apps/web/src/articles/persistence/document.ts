@@ -5,26 +5,18 @@ import {
   readArticleDocument,
   resolveLocale,
 } from "@my-knowledge/content";
-import { and, eq, sql } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/d1";
 
 import { readArticleCache, writeArticleCache } from "./cache";
-import { authorizedCondition } from "./query";
+import { authorized } from "./query";
 import { articleObjectKey, articleSummary, type ArticleRow } from "./record";
+import { findTranslations, listTranslations, readIndex } from "./store";
 import type { Principal } from "@/auth/types";
-import { articles, articleTranslations } from "@/db/schema";
 import { requestCache } from "@/request";
 
 export async function readArticle(env: CloudflareEnv, row: ArticleRow): Promise<Article> {
-  const translations = await drizzle(env.DB)
-    .select()
-    .from(articleTranslations)
-    .where(
-      and(
-        eq(articleTranslations.articleId, row.id),
-        eq(articleTranslations.sourceHash, row.contentHash),
-      ),
-    );
+  const translations = (await findTranslations(env, row.id)).filter(
+    (translation) => translation.sourceHash === row.contentHash,
+  );
   const summary = articleSummary(row, translations);
   const entries = await Promise.all(
     Object.keys(summary.editions).map(async (locale): Promise<[string, ArticleText]> => [
@@ -70,15 +62,10 @@ export async function localizeArticles(
 ): Promise<ArticleSummary[]> {
   const locale = resolveLocale(["zh", "en", "ja"], requestedLocale) ?? "zh";
   if ((locale !== "en" && locale !== "ja") || summaries.length === 0) return summaries;
-  const translations = await drizzle(env.DB)
-    .select()
-    .from(articleTranslations)
-    .where(
-      and(
-        eq(articleTranslations.locale, locale),
-        sql`${articleTranslations.articleId} in (select value from json_each(${JSON.stringify(summaries.map(({ id }) => id))}))`,
-      ),
-    );
+  const ids = new Set(summaries.map(({ id }) => id));
+  const translations = (await listTranslations(env, locale)).filter((translation) =>
+    ids.has(translation.articleId),
+  );
   const byId = new Map(translations.map((translation) => [translation.articleId, translation]));
   return summaries.map((article) => {
     const translation = byId.get(article.id);
@@ -109,26 +96,18 @@ export async function getArticleEdition(
   const translations =
     requestedLocale === "zh"
       ? []
-      : await drizzle(env.DB)
-          .select()
-          .from(articleTranslations)
-          .where(
-            and(
-              eq(articleTranslations.articleId, row.id),
-              eq(articleTranslations.sourceHash, row.contentHash),
-            ),
-          );
+      : (await findTranslations(env, row.id)).filter(
+          (translation) => translation.sourceHash === row.contentHash,
+        );
   const article = articleSummary(row, translations);
   const locale = resolveLocale(Object.keys(article.editions), requestedLocale) ?? "zh";
   return { article, locale, text: await readArticleText(env, row, locale) };
 }
 
-export function readArticleRow(env: CloudflareEnv, principal: Principal, value: string) {
-  return drizzle(env.DB)
-    .select()
-    .from(articles)
-    .where(and(eq(articles.id, value), authorizedCondition(principal)))
-    .get();
+export async function readArticleRow(env: CloudflareEnv, principal: Principal, value: string) {
+  return (await readIndex(env)).articles.find(
+    (row) => row.id === value && authorized(principal)(row),
+  );
 }
 
 export const getArticleRow = requestCache(readArticleRow);

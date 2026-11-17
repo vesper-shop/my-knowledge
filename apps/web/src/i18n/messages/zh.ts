@@ -11,7 +11,7 @@ export const zh = {
     theme: "切换主题",
     accountMenu: "打开账户菜单",
     signOut: "退出登录",
-    signIn: "使用 you-find.me 登录",
+    signIn: "使用 Vesper 登录",
     signInFailed: "无法开始登录，请重试。",
     signOutFailed: "退出登录失败，请重试。",
   },

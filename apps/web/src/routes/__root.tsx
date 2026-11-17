@@ -22,7 +22,7 @@ import appStyles from "@/styles/globals.css?url";
 
 const getShell = createServerFn({ method: "GET" }).handler(() => ({
   locale: getInterfaceI18n().code,
-  origin: new URL(env.BETTER_AUTH_URL).origin,
+  origin: new URL(env.SITE_URL).origin,
 }));
 
 export const Route = createRootRoute({

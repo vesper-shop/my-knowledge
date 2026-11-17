@@ -24,18 +24,6 @@
     }
   },
   "name": "my-knowledge-test",
-  "vars": {
-    "BETTER_AUTH_URL": "http://127.0.0.1:8787"
-  },
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_name": "my-knowledge-test",
-      "database_id": "00000000-0000-0000-0000-000000000001",
-      "migrations_dir": "migrations",
-      "remote": false
-    }
-  ],
   "r2_buckets": [
     {
       "binding": "KNOWLEDGE_BUCKET",
@@ -49,5 +37,8 @@
       "id": "00000000000000000000000000000001",
       "remote": false
     }
-  ]
+  ],
+  "vars": {
+    "SITE_URL": "http://127.0.0.1:8787"
+  }
 }

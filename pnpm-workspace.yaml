@@ -5,9 +5,9 @@ packages:
 autoInstallPeers: false
 
 overrides:
-  react: "19.3.0"
-  vite: npm:@voidzero-dev/vite-plus-core@1.4.0
-  react-dom: "19.3.0"
+  react: "19.3.1"
+  vite: npm:@voidzero-dev/vite-plus-core@1.6.0
+  react-dom: "19.3.1"
 
 allowBuilds:
   esbuild: true

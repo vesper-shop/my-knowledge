@@ -1,11 +1,9 @@
 import { defineConfig } from "@playwright/test";
-import authFixture from "./apps/web/__test__/fixtures/auth.json" with { type: "json" };
 
 const baseURL = "http://127.0.0.1:8787";
 const workerCommand = [
   "apps/web/node_modules/.bin/wrangler dev --local --persist-to apps/web/.wrangler/test-state --config apps/web/dist/server/wrangler.json",
-  `--var BETTER_AUTH_URL:${baseURL}`,
-  `--var BETTER_AUTH_SECRET:${authFixture.secret}`,
+  `--var SITE_URL:${baseURL}`,
 ].join(" ");
 
 export default defineConfig({

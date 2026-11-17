@@ -11,7 +11,7 @@ export const ja = {
     theme: "テーマを切り替える",
     accountMenu: "アカウントメニューを開く",
     signOut: "ログアウト",
-    signIn: "you-find.me でログイン",
+    signIn: "Vesper でサインイン",
     signInFailed: "ログインを開始できませんでした。もう一度お試しください。",
     signOutFailed: "ログアウトできませんでした。もう一度お試しください。",
   },

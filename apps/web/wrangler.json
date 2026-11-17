@@ -17,21 +17,6 @@
       "custom_domain": true
     }
   ],
-  "vars": {
-    "BETTER_AUTH_URL": "https://knowledge.you-find.me"
-  },
-  "secrets": {
-    "required": ["BETTER_AUTH_SECRET"]
-  },
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_name": "my-knowledge-v2",
-      "database_id": "b75b2946-eed6-448a-8fb0-7f8a60f3ceda",
-      "migrations_dir": "migrations",
-      "remote": true
-    }
-  ],
   "r2_buckets": [
     {
       "binding": "KNOWLEDGE_BUCKET",
@@ -73,5 +58,9 @@
     "traces": {
       "enabled": true
     }
+  },
+  "secrets": { "required": ["VESPER_TOKEN"] },
+  "vars": {
+    "SITE_URL": "https://knowledge.you-find.me"
   }
 }

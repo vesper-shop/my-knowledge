@@ -22,9 +22,13 @@ import { Route as ApiOpenapiDotjsonRouteImport } from './routes/api/openapi[.]js
 import { Route as ApiTagsRouteImport } from './routes/api/tags'
 import { Route as ArticlesIdRouteImport } from './routes/articles/$id'
 import { Route as ArticlesNewRouteImport } from './routes/articles/new'
+import { Route as ImgNameRouteImport } from './routes/img.$name'
 import { Route as ApiArticlesIndexRouteImport } from './routes/api/articles/index'
 import { Route as ApiArticlesIdRouteImport } from './routes/api/articles/$id'
-import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as ApiAuthCallbackRouteImport } from './routes/api/auth/callback'
+import { Route as ApiAuthSessionRouteImport } from './routes/api/auth/session'
+import { Route as ApiAuthSignInRouteImport } from './routes/api/auth/sign-in'
+import { Route as ApiAuthSignOutRouteImport } from './routes/api/auth/sign-out'
 import { Route as ArticlesIdOpengraphImageRouteImport } from './routes/articles/$id_/opengraph-image'
 
 const IndexRoute = IndexRouteImport.update({
@@ -93,6 +97,11 @@ const ArticlesNewRoute = ArticlesNewRouteImport.update({
   path: '/articles/new',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ImgNameRoute = ImgNameRouteImport.update({
+  id: '/img/$name',
+  path: '/img/$name',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiArticlesIndexRoute = ApiArticlesIndexRouteImport.update({
   id: '/api/articles/',
   path: '/api/articles/',
@@ -103,9 +112,24 @@ const ApiArticlesIdRoute = ApiArticlesIdRouteImport.update({
   path: '/api/articles/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
-  id: '/api/auth/$',
-  path: '/api/auth/$',
+const ApiAuthCallbackRoute = ApiAuthCallbackRouteImport.update({
+  id: '/api/auth/callback',
+  path: '/api/auth/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthSessionRoute = ApiAuthSessionRouteImport.update({
+  id: '/api/auth/session',
+  path: '/api/auth/session',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthSignInRoute = ApiAuthSignInRouteImport.update({
+  id: '/api/auth/sign-in',
+  path: '/api/auth/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthSignOutRoute = ApiAuthSignOutRouteImport.update({
+  id: '/api/auth/sign-out',
+  path: '/api/auth/sign-out',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ArticlesIdOpengraphImageRoute =
@@ -129,8 +153,12 @@ export interface FileRoutesByFullPath {
   '/api/tags': typeof ApiTagsRoute
   '/articles/$id': typeof ArticlesIdRoute
   '/articles/new': typeof ArticlesNewRoute
+  '/img/$name': typeof ImgNameRoute
   '/api/articles/$id': typeof ApiArticlesIdRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/auth/callback': typeof ApiAuthCallbackRoute
+  '/api/auth/session': typeof ApiAuthSessionRoute
+  '/api/auth/sign-in': typeof ApiAuthSignInRoute
+  '/api/auth/sign-out': typeof ApiAuthSignOutRoute
   '/articles/$id/opengraph-image': typeof ArticlesIdOpengraphImageRoute
   '/api/articles/': typeof ApiArticlesIndexRoute
 }
@@ -148,8 +176,12 @@ export interface FileRoutesByTo {
   '/api/tags': typeof ApiTagsRoute
   '/articles/$id': typeof ArticlesIdRoute
   '/articles/new': typeof ArticlesNewRoute
+  '/img/$name': typeof ImgNameRoute
   '/api/articles/$id': typeof ApiArticlesIdRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/auth/callback': typeof ApiAuthCallbackRoute
+  '/api/auth/session': typeof ApiAuthSessionRoute
+  '/api/auth/sign-in': typeof ApiAuthSignInRoute
+  '/api/auth/sign-out': typeof ApiAuthSignOutRoute
   '/articles/$id/opengraph-image': typeof ArticlesIdOpengraphImageRoute
   '/api/articles': typeof ApiArticlesIndexRoute
 }
@@ -168,8 +200,12 @@ export interface FileRoutesById {
   '/api/tags': typeof ApiTagsRoute
   '/articles/$id': typeof ArticlesIdRoute
   '/articles/new': typeof ArticlesNewRoute
+  '/img/$name': typeof ImgNameRoute
   '/api/articles/$id': typeof ApiArticlesIdRoute
-  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/auth/callback': typeof ApiAuthCallbackRoute
+  '/api/auth/session': typeof ApiAuthSessionRoute
+  '/api/auth/sign-in': typeof ApiAuthSignInRoute
+  '/api/auth/sign-out': typeof ApiAuthSignOutRoute
   '/articles/$id_/opengraph-image': typeof ArticlesIdOpengraphImageRoute
   '/api/articles/': typeof ApiArticlesIndexRoute
 }
@@ -189,8 +225,12 @@ export interface FileRouteTypes {
     | '/api/tags'
     | '/articles/$id'
     | '/articles/new'
+    | '/img/$name'
     | '/api/articles/$id'
-    | '/api/auth/$'
+    | '/api/auth/callback'
+    | '/api/auth/session'
+    | '/api/auth/sign-in'
+    | '/api/auth/sign-out'
     | '/articles/$id/opengraph-image'
     | '/api/articles/'
   fileRoutesByTo: FileRoutesByTo
@@ -208,8 +248,12 @@ export interface FileRouteTypes {
     | '/api/tags'
     | '/articles/$id'
     | '/articles/new'
+    | '/img/$name'
     | '/api/articles/$id'
-    | '/api/auth/$'
+    | '/api/auth/callback'
+    | '/api/auth/session'
+    | '/api/auth/sign-in'
+    | '/api/auth/sign-out'
     | '/articles/$id/opengraph-image'
     | '/api/articles'
   id:
@@ -227,8 +271,12 @@ export interface FileRouteTypes {
     | '/api/tags'
     | '/articles/$id'
     | '/articles/new'
+    | '/img/$name'
     | '/api/articles/$id'
-    | '/api/auth/$'
+    | '/api/auth/callback'
+    | '/api/auth/session'
+    | '/api/auth/sign-in'
+    | '/api/auth/sign-out'
     | '/articles/$id_/opengraph-image'
     | '/api/articles/'
   fileRoutesById: FileRoutesById
@@ -247,8 +295,12 @@ export interface RootRouteChildren {
   ApiTagsRoute: typeof ApiTagsRoute
   ArticlesIdRoute: typeof ArticlesIdRoute
   ArticlesNewRoute: typeof ArticlesNewRoute
+  ImgNameRoute: typeof ImgNameRoute
   ApiArticlesIdRoute: typeof ApiArticlesIdRoute
-  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiAuthCallbackRoute: typeof ApiAuthCallbackRoute
+  ApiAuthSessionRoute: typeof ApiAuthSessionRoute
+  ApiAuthSignInRoute: typeof ApiAuthSignInRoute
+  ApiAuthSignOutRoute: typeof ApiAuthSignOutRoute
   ArticlesIdOpengraphImageRoute: typeof ArticlesIdOpengraphImageRoute
   ApiArticlesIndexRoute: typeof ApiArticlesIndexRoute
 }
@@ -346,6 +398,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ArticlesNewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/img/$name': {
+      id: '/img/$name'
+      path: '/img/$name'
+      fullPath: '/img/$name'
+      preLoaderRoute: typeof ImgNameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/articles/': {
       id: '/api/articles/'
       path: '/api/articles'
@@ -360,11 +419,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiArticlesIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatRouteImport
+    '/api/auth/callback': {
+      id: '/api/auth/callback'
+      path: '/api/auth/callback'
+      fullPath: '/api/auth/callback'
+      preLoaderRoute: typeof ApiAuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/session': {
+      id: '/api/auth/session'
+      path: '/api/auth/session'
+      fullPath: '/api/auth/session'
+      preLoaderRoute: typeof ApiAuthSessionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/sign-in': {
+      id: '/api/auth/sign-in'
+      path: '/api/auth/sign-in'
+      fullPath: '/api/auth/sign-in'
+      preLoaderRoute: typeof ApiAuthSignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/sign-out': {
+      id: '/api/auth/sign-out'
+      path: '/api/auth/sign-out'
+      fullPath: '/api/auth/sign-out'
+      preLoaderRoute: typeof ApiAuthSignOutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/articles/$id_/opengraph-image': {
@@ -392,8 +472,12 @@ const rootRouteChildren: RootRouteChildren = {
   ApiTagsRoute: ApiTagsRoute,
   ArticlesIdRoute: ArticlesIdRoute,
   ArticlesNewRoute: ArticlesNewRoute,
+  ImgNameRoute: ImgNameRoute,
   ApiArticlesIdRoute: ApiArticlesIdRoute,
-  ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiAuthCallbackRoute: ApiAuthCallbackRoute,
+  ApiAuthSessionRoute: ApiAuthSessionRoute,
+  ApiAuthSignInRoute: ApiAuthSignInRoute,
+  ApiAuthSignOutRoute: ApiAuthSignOutRoute,
   ArticlesIdOpengraphImageRoute: ArticlesIdOpengraphImageRoute,
   ApiArticlesIndexRoute: ApiArticlesIndexRoute,
 }
