@@ -13,6 +13,7 @@ import {
   markdownParser,
   MarkdownEmbedError,
   parseMarkdownEmbed,
+  sha256Hex,
   type MarkdownEmbed,
 } from "@my-knowledge/content";
 
@@ -301,11 +302,7 @@ export async function compileMarkdown({
       fetchMethod: async (input, _previous, { context }) => {
         let key: string | undefined;
         if (cache) {
-          const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(input));
-          const hash = Array.from(new Uint8Array(digest), (byte) =>
-            byte.toString(16).padStart(2, "0"),
-          ).join("");
-          key = `compiled/${hash}.json`;
+          key = `compiled/${await sha256Hex(input)}.json`;
           const stored = await cache.get(key);
           if (stored !== null) return compiledMarkdownSchema.parse(JSON.parse(stored));
         }

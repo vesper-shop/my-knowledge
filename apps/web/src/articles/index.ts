@@ -6,3 +6,4 @@ export {
   localizeArticles,
 } from "./persistence/document";
 export { listArticles, listPublicArticleSummaries, searchArticles } from "./persistence/query";
+export { readIndex } from "./persistence/store";

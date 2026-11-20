@@ -14,6 +14,12 @@ export const getProfile = requestCache(async () => {
   return env.KNOWLEDGE_CACHE.get(PROFILE_KEY, "json");
 });
 
+export const unauthorizedResponse = () =>
+  Response.json(
+    { error: "Unauthorized" },
+    { status: 401, headers: { "WWW-Authenticate": "Bearer" } },
+  );
+
 export async function isOwnerRequest(request: Request): Promise<boolean> {
   const header = request.headers.get("authorization");
   if (!header) return (await getPrincipal()) === "owner";

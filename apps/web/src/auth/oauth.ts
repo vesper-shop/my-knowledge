@@ -1,7 +1,8 @@
+import { siteOrigin } from "@/shell/site";
 import { ISSUER } from "@/auth/vesper";
 
 export const PROTECTED_RESOURCE_METADATA = {
-  resource: "https://knowledge.you-find.me",
+  resource: siteOrigin,
   authorization_servers: [ISSUER],
   scopes_supported: ["entries:read"],
   bearer_methods_supported: ["header"],

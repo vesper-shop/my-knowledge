@@ -1,8 +1,15 @@
-import type { ArticleHeaderProps } from "./article-header.types";
+import type { ReactNode } from "react";
 
-export function ArticleHeader({ children, title }: ArticleHeaderProps) {
+type ArticleHeaderProps = {
+  back: ReactNode;
+  children: ReactNode;
+  title: string;
+};
+
+export function ArticleHeader({ back, children, title }: ArticleHeaderProps) {
   return (
     <header className="article-heading">
+      {back}
       <div className="article-heading-top">
         <h1 className="font-serif text-[length:var(--text-section)] font-normal leading-[var(--leading-heading)] text-foreground">
           {title}

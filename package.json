@@ -16,6 +16,7 @@
     "test": "vp test",
     "test:mcp": "pnpm --filter @my-knowledge/web test:mcp",
     "test:e2e": "pnpm --filter @my-knowledge/web build:test && playwright test",
+    "test:performance": "pnpm --filter @my-knowledge/web build:test && playwright test --config performance.config.ts",
     "check": "pnpm --filter @my-knowledge/web types && vp check"
   },
   "devDependencies": {

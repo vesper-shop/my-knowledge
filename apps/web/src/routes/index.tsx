@@ -57,6 +57,7 @@ function HomePage() {
         <a href="https://design.you-find.me" target="_blank" rel="noopener noreferrer">
           Design
         </a>
+        <a href="/rss.xml">RSS</a>
         <a
           href="https://github.com/Pleasurecruise/my-knowledge"
           target="_blank"

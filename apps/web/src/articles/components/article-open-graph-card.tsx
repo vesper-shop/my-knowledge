@@ -1,4 +1,9 @@
-import type { ArticleOpenGraphCardProps } from "./article-open-graph-card.types";
+type ArticleOpenGraphCardProps = {
+  /** The base image as a data URL. */
+  base: string;
+  date: string;
+  title: string;
+};
 
 export const articleOpenGraphSize = { width: 1200, height: 630 };
 export const articleOpenGraphVersion = "4";

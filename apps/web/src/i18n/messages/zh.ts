@@ -4,6 +4,7 @@ export const zh = {
   shell: {
     subtitle: "个人知识库",
     explore: "探索",
+    skipToContent: "跳到正文",
     articles: "文章",
     navigation: "主要导航",
     moreActions: "更多操作",

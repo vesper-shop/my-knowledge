@@ -1,4 +1,11 @@
-import type { PageLayoutProps } from "./page-layout.types";
+import type { ReactNode } from "react";
+
+type PageLayoutProps = {
+  action: ReactNode | null;
+  children: ReactNode;
+  hideTitle?: boolean;
+  title: string;
+};
 
 export function PageLayout({ action, children, hideTitle = false, title }: PageLayoutProps) {
   return (

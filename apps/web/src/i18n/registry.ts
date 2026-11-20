@@ -6,6 +6,7 @@ export type InterfaceMessages = {
   shell: {
     subtitle: string;
     explore: string;
+    skipToContent: string;
     articles: string;
     navigation: string;
     moreActions: string;

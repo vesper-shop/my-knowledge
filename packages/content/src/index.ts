@@ -6,7 +6,7 @@ export {
   validateMarkdown,
   type ArticleDocumentInput,
 } from "./document";
-export { hashArticle, parseArticleDocuments } from "./hash";
+export { hashArticle, parseArticleDocuments, sha256Hex } from "./hash";
 export { createSlug, extractHeadings, type ArticleHeading } from "./links";
 export { normalizeLocale, resolveLocale } from "./locale";
 export {

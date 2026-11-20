@@ -2,8 +2,12 @@ import { parseArticleDocument } from "./document";
 import { normalizeLocale } from "./locale";
 import type { ArticleDocumentSet, ParsedArticleDocument } from "./schema";
 
+export async function sha256Hex(value: string): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
+  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
 export async function hashArticle(documents: Readonly<Record<string, string>>): Promise<string> {
-  const encoder = new TextEncoder();
   const localeNames = new Set<string>();
   const parts = Object.entries(documents).map(([locale, markdown]): [string, string] => {
     const normalized = normalizeLocale(locale);
@@ -12,11 +16,7 @@ export async function hashArticle(documents: Readonly<Record<string, string>>): 
     return [normalized, markdown];
   });
   parts.sort(([left], [right]) => left.localeCompare(right));
-  const bytes = encoder.encode(
-    parts.map(([locale, markdown]) => `${locale}\0${markdown}\0`).join(""),
-  );
-  const digest = await crypto.subtle.digest("SHA-256", bytes);
-  return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+  return sha256Hex(parts.map(([locale, markdown]) => `${locale}\0${markdown}\0`).join(""));
 }
 
 export async function parseArticleDocuments(

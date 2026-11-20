@@ -10,14 +10,11 @@ import {
   listOwnerArticles,
 } from "@/articles/service";
 import { articleCreateSchema, articleListQuerySchema } from "@/api/articles";
-import { isOwnerRequest } from "@/auth/owner";
+import { isOwnerRequest, unauthorizedResponse } from "@/auth/owner";
 
 async function listArticles({ request }: { request: Request }) {
   if (!(await isOwnerRequest(request))) {
-    return Response.json(
-      { error: "Unauthorized" },
-      { status: 401, headers: { "WWW-Authenticate": "Bearer" } },
-    );
+    return unauthorizedResponse();
   }
   const url = new URL(request.url);
   const query = articleListQuerySchema.safeParse(Object.fromEntries(url.searchParams.entries()));
@@ -40,10 +37,7 @@ async function listArticles({ request }: { request: Request }) {
 
 async function createArticle({ request }: { request: Request }) {
   if (!(await isOwnerRequest(request))) {
-    return Response.json(
-      { error: "Unauthorized" },
-      { status: 401, headers: { "WWW-Authenticate": "Bearer" } },
-    );
+    return unauthorizedResponse();
   }
   let input: z.infer<typeof articleCreateSchema>;
   try {

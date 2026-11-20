@@ -1,6 +1,12 @@
 import { resolveLocale, type ArticleSummary } from "@my-knowledge/content";
 import { IntentLink } from "@/shell/intent-link";
-import type { ArticleListProps } from "./article-list.types";
+
+type ArticleListProps = {
+  locale?: string;
+  order?: "chronology" | "relevance";
+  articles: ArticleSummary[];
+  empty: string;
+};
 
 const articleDate = new Intl.DateTimeFormat("en-US", { month: "2-digit", day: "2-digit" });
 

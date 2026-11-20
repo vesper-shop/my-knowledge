@@ -465,10 +465,10 @@ test("renders article-list metadata cards and stages visibility until Save", asy
   const backBox = await back.boundingBox();
   expect(titleBox).not.toBeNull();
   expect(backBox).not.toBeNull();
-  if (titleBox && backBox)
-    expect(
-      Math.abs(titleBox.y + titleBox.height / 2 - backBox.y - backBox.height / 2),
-    ).toBeLessThan(2);
+  if (titleBox && backBox) {
+    expect(Math.abs(titleBox.x - backBox.x)).toBeLessThan(2);
+    expect(backBox.y + backBox.height).toBeLessThanOrEqual(titleBox.y);
+  }
   await back.click();
   await expect(page).toHaveURL(new RegExp(`/articles/${article.id}$`));
   await expect(cards.locator("strong").first()).toHaveText(target.editions.zh.title);

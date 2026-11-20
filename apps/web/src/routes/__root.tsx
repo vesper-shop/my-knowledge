@@ -70,6 +70,9 @@ function RootDocument({ children }: { children: ReactNode }) {
         />
       </head>
       <body>
+        <a className="skip-link" href="#main">
+          {i18n.messages.shell.skipToContent}
+        </a>
         <ReadingTrail>
           <SiteHeader
             label={i18n.messages.shell.moreActions}
@@ -104,7 +107,9 @@ function RootDocument({ children }: { children: ReactNode }) {
               </Link>
             }
           />
-          <main>{children}</main>
+          <main id="main" tabIndex={-1}>
+            {children}
+          </main>
         </ReadingTrail>
         <Toaster />
         <Scripts />

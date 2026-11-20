@@ -14,7 +14,14 @@ import { Trash2 } from "@my-knowledge/ui/icons";
 import { useNavigate, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 
-import type { DeleteActionProps } from "./delete-action.types";
+import type { InterfaceMessages } from "@/i18n/registry";
+
+type DeleteActionProps = {
+  expectedHash: string;
+  expectedUpdatedAt: string;
+  id: string;
+  messages: InterfaceMessages["article"];
+};
 
 export function DeleteAction({ id, expectedHash, expectedUpdatedAt, messages }: DeleteActionProps) {
   const navigate = useNavigate();

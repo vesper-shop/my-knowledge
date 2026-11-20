@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-import { articleOrigin } from "@/articles/origin";
+import { siteOrigin } from "@/shell/site";
 
 export function ReferencePosition() {
   useEffect(() => {
@@ -17,7 +17,7 @@ export function ReferencePosition() {
         (link) => {
           const url = new URL(link.href);
           return (
-            (url.origin === window.location.origin || url.origin === articleOrigin) &&
+            (url.origin === window.location.origin || url.origin === siteOrigin) &&
             url.pathname.replace(/\/$/u, "") === path
           );
         },

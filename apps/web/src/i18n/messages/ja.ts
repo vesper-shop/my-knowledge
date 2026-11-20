@@ -4,6 +4,7 @@ export const ja = {
   shell: {
     subtitle: "私の知識庫",
     explore: "探索",
+    skipToContent: "本文へ移動",
     articles: "記事",
     navigation: "メインナビゲーション",
     moreActions: "その他の操作",

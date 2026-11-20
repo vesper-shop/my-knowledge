@@ -3,7 +3,12 @@ import { Button } from "@my-knowledge/ui/components/button";
 import { Search, ArrowRight } from "@my-knowledge/ui/icons";
 import { Input } from "@my-knowledge/ui/components/input";
 
-import type { SearchFormProps } from "./search-form.types";
+import type { InterfaceMessages } from "@/i18n/registry";
+
+type SearchFormProps = {
+  messages: InterfaceMessages["search"];
+  query: string;
+};
 
 export function SearchForm({ messages, query }: SearchFormProps) {
   const navigate = useNavigate();

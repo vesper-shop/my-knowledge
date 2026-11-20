@@ -24,7 +24,7 @@ import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { z } from "zod";
 
 import { articleReturnHref } from "@/articles/navigation";
-import type { ArticleEditorProps } from "./article-editor.types";
+import type { ArticleEditorProps } from "@/articles/types";
 import { DeleteAction } from "./delete-action";
 
 const MarkdownPreview = lazy(() =>

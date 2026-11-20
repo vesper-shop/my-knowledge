@@ -4,6 +4,7 @@ export const en = {
   shell: {
     subtitle: "personal knowledge",
     explore: "Explore",
+    skipToContent: "Skip to content",
     articles: "Articles",
     navigation: "Primary navigation",
     moreActions: "More actions",

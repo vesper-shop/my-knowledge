@@ -1,6 +1,6 @@
 import handler from "@tanstack/react-start/server-entry";
 
-import { readIndex } from "@/articles/persistence/store";
+import { readIndex } from "@/articles";
 import { resolveInterfaceI18n } from "./i18n/registry";
 
 export { ArticleWriter } from "./articles/writer";
@@ -49,7 +49,7 @@ export default {
         : article && article.updatedAt;
     if (!version) return render(request, url);
     const locale = resolveInterfaceI18n(undefined, request.headers.get("accept-language")).code;
-    const etag = `"${env.CF_VERSION_METADATA.id}:${locale}:${version}:${url.search}"`;
+    const etag = `W/"${env.CF_VERSION_METADATA.id}:${locale}:${version}:${url.search}"`;
     if (request.headers.get("if-none-match") === etag)
       return new Response(null, {
         status: 304,

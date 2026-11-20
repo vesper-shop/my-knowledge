@@ -1,3 +1,4 @@
+import { sha256Hex } from "@my-knowledge/content";
 import { fromHtml } from "hast-util-from-html";
 import { z } from "zod";
 import type { CardData } from "@my-knowledge/ui";
@@ -131,11 +132,6 @@ function stockCard(data: unknown, id: string): CardData {
   };
 }
 
-async function urlKey(value: string): Promise<string> {
-  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
-  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
-}
-
 export type CardProvider = {
   cacheKey(id: string): string | Promise<string>;
   address(id: string): string;
@@ -180,7 +176,7 @@ export const cardProviders = {
     render: stockCard,
   },
   link: {
-    cacheKey: urlKey,
+    cacheKey: sha256Hex,
     address: (id) => id,
     accept: "text/html, application/xhtml+xml",
     redirects: true,

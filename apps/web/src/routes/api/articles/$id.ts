@@ -12,7 +12,7 @@ import {
   updateArticleTranslationFromDraft,
 } from "@/articles/service";
 import { articleDeleteSchema, articlePatchSchema } from "@/api/articles";
-import { isOwnerRequest } from "@/auth/owner";
+import { isOwnerRequest, unauthorizedResponse } from "@/auth/owner";
 
 async function readArticle({
   request,
@@ -22,10 +22,7 @@ async function readArticle({
   params: { id: string };
 }) {
   if (!(await isOwnerRequest(request))) {
-    return Response.json(
-      { error: "Unauthorized" },
-      { status: 401, headers: { "WWW-Authenticate": "Bearer" } },
-    );
+    return unauthorizedResponse();
   }
   const article = await getOwnerArticle(env, id);
   return article
@@ -41,10 +38,7 @@ async function updateArticle({
   params: { id: string };
 }) {
   if (!(await isOwnerRequest(request))) {
-    return Response.json(
-      { error: "Unauthorized" },
-      { status: 401, headers: { "WWW-Authenticate": "Bearer" } },
-    );
+    return unauthorizedResponse();
   }
   let input: z.infer<typeof articlePatchSchema>;
   try {
@@ -113,10 +107,7 @@ async function removeArticle({
   params: { id: string };
 }) {
   if (!(await isOwnerRequest(request))) {
-    return Response.json(
-      { error: "Unauthorized" },
-      { status: 401, headers: { "WWW-Authenticate": "Bearer" } },
-    );
+    return unauthorizedResponse();
   }
   let input: z.infer<typeof articleDeleteSchema>;
   try {

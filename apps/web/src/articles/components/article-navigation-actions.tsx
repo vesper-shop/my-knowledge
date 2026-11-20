@@ -5,15 +5,35 @@ import { Share2, Pencil } from "@my-knowledge/ui/icons";
 import { toast } from "@my-knowledge/ui/components/toast";
 
 import { IntentLink } from "@/shell/intent-link";
-import type { ArticleNavigationActionsProps } from "./article-navigation-actions.types";
+
+import type { InterfaceMessages } from "@/i18n/registry";
+
+type ArticleNavigationActionsProps = {
+  articleHref: string;
+  edit: { enabled: false } | { enabled: true; href: string };
+  messages: InterfaceMessages["article"];
+};
+
+type ArticleReturnLinkProps = {
+  label: string;
+  returnHref: string;
+};
+
+export function ArticleReturnLink({ label, returnHref }: ArticleReturnLinkProps) {
+  const destination = useContext(ArticleReturnContext) ?? returnHref;
+  return (
+    <IntentLink className="article-return hover:text-foreground" href={destination}>
+      <span aria-hidden="true">← </span>
+      {label}
+    </IntentLink>
+  );
+}
 
 export function ArticleNavigationActions({
   articleHref,
   edit,
   messages,
-  returnHref,
 }: ArticleNavigationActionsProps) {
-  const destination = useContext(ArticleReturnContext) ?? returnHref;
   const [copying, setCopying] = useState(false);
   const [fragment, setFragment] = useState("");
   useEffect(() => {
@@ -36,14 +56,6 @@ export function ArticleNavigationActions({
   }
   return (
     <div className="article-reading-actions">
-      <IntentLink
-        className="article-return hover:text-foreground"
-        href={destination}
-        aria-label={messages.previousPage}
-      >
-        <span aria-hidden="true">← </span>
-        {messages.previousPage}
-      </IntentLink>
       <div className="article-share">
         <button
           type="button"

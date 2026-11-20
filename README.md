@@ -20,7 +20,7 @@
 
 ```sh
 pnpm install
-cp apps/web/.env.example apps/web/.dev.vars
+echo 'VESPER_TOKEN=<token>' > apps/web/.dev.vars
 pnpm dev
 ```
 

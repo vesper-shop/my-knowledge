@@ -1,7 +1,7 @@
 import { env } from "cloudflare:workers";
 import { getPrincipal } from "../auth/owner";
 import { getArticleRow } from "./persistence/document";
-import { articleOrigin } from "./origin";
+import { siteOrigin } from "@/shell/site";
 import { fetchTweet, TwitterApiError, type Tweet } from "react-tweet/api";
 import { z } from "zod";
 import type { MarkdownEmbed } from "@my-knowledge/content";
@@ -122,7 +122,7 @@ const readTweet = requestCache(async (id: string): Promise<Tweet | undefined> =>
 
 const readArticleCard = requestCache(async (value: string): Promise<ArticleCard | null> => {
   const url = new URL(value);
-  if (url.origin !== new URL(env.SITE_URL).origin && url.origin !== articleOrigin) return null;
+  if (url.origin !== new URL(env.SITE_URL).origin && url.origin !== siteOrigin) return null;
   const match = /^\/articles\/([^/]+)\/?$/u.exec(url.pathname);
   if (!match?.[1]) return null;
   const identity = decodeURIComponent(match[1]);

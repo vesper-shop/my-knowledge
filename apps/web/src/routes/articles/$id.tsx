@@ -11,11 +11,14 @@ import { articleReturnHref } from "@/articles/navigation";
 import { ArticleAddress } from "@/articles/components/article-address";
 import { ArticleHeader } from "@/articles/components/article-header";
 import { ArticleLink } from "@/articles/components/article-link";
-import { ArticleNavigationActions } from "@/articles/components/article-navigation-actions";
+import {
+  ArticleNavigationActions,
+  ArticleReturnLink,
+} from "@/articles/components/article-navigation-actions";
 import { articleOpenGraphVersion } from "@/articles/components/article-open-graph-card";
-import type { ExistingArticleEditor } from "@/articles/components/article-editor.types";
+import type { ExistingArticleEditor } from "@/articles/types";
 import { ArticleEditorShell } from "@/articles/components/editor-shell";
-import { ReferencePosition } from "@/articles/components/referencePosition";
+import { ReferencePosition } from "@/articles/components/reference-position";
 import { StructuredBlock } from "@/articles/components/structured-block";
 import { getPrincipal } from "@/auth/owner";
 import { interfaceLocales } from "@/i18n/registry";
@@ -206,11 +209,18 @@ function ArticlePage() {
         lang={page.lang}
       >
         <div className="article-title-row">
-          <ArticleHeader title={page.title}>
+          <ArticleHeader
+            back={
+              <ArticleReturnLink
+                label={i18n.messages.article.previousPage}
+                returnHref={page.returnHref}
+              />
+            }
+            title={page.title}
+          >
             <ArticleNavigationActions
               key={page.id}
               articleHref={`/articles/${page.id}`}
-              returnHref={page.returnHref}
               edit={
                 page.editable
                   ? { enabled: true, href: `/articles/${page.id}?edit=1${page.context}` }

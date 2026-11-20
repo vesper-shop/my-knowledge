@@ -2,7 +2,7 @@ import { ClientOnly } from "@tanstack/react-router";
 import { createClientOnlyFn } from "@tanstack/react-start";
 import { lazy, Suspense } from "react";
 
-import type { ArticleEditorProps } from "./article-editor.types";
+import type { ArticleEditorProps } from "@/articles/types";
 
 const ArticleEditor = lazy(
   createClientOnlyFn(() =>

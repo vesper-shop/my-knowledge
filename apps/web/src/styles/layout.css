@@ -583,3 +583,33 @@ body:has(.home-footer) > main {
   width: 0.875rem;
   height: 0.875rem;
 }
+
+.article-return {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  margin-bottom: 0.5rem;
+  color: var(--muted-foreground);
+  font-family: var(--type-interface);
+  font-size: var(--text-small);
+  text-decoration: none;
+}
+
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 60;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--shape-md);
+  background: var(--foreground);
+  color: var(--background);
+  font-size: var(--text-small);
+  transform: translateY(-200%);
+}
+.skip-link:focus-visible {
+  transform: none;
+}
+main:focus {
+  outline: none;
+}
