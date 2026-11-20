@@ -1,5 +1,5 @@
 import { z } from "zod";
-import packs from "./emoji-packs.json";
+import packs from "./emoji-packs.json" with { type: "json" };
 
 const packSchema = z.strictObject({
   key: z.string().regex(/^[a-z0-9]+$/iu),

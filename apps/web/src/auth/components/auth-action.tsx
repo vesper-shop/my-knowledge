@@ -66,7 +66,7 @@ export function AuthAction({ messages }: { messages: InterfaceMessages["shell"] 
           <AvatarFallback>{profile === null ? "?" : profile.name.slice(0, 1)}</AvatarFallback>
         </Avatar>
       </PopoverTrigger>
-      <PopoverContent align="end" sideOffset={10}>
+      <PopoverContent align="end" aria-label={messages.accountMenu} sideOffset={10}>
         {profile === null ? null : (
           <PopoverHeader>
             <a

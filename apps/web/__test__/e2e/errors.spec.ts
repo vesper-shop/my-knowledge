@@ -1,31 +1,45 @@
 import AxeBuilder from "@axe-core/playwright";
-import { execFileSync } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { expect, test } from "@playwright/test";
 import { getPlatformProxy } from "wrangler";
 import { fileURLToPath } from "node:url";
+import { z } from "zod";
+
+import {
+  articleRowSchema,
+  articleTranslationRowSchema,
+} from "../../src/articles/persistence/store";
 
 const appDirectory = new URL("../../", import.meta.url);
 
-function fixtureRow(id: string) {
-  execFileSync(
-    "./node_modules/.bin/wrangler",
-    [
-      "d1",
-      "execute",
-      "DB",
-      "--local",
-      "--config",
-      "wrangler.test.json",
-      "--persist-to",
-      ".wrangler/test-state",
-      "--command",
-      `INSERT INTO articles (id, title, summary, contentHash, tagsJson, visibility, createdAt, updatedAt)
-     VALUES ('${id}', 'Reading recovery', 'Recovery fixture', '${"a".repeat(64)}', '["daily"]', 'private', '2026-09-01', '2026-09-01')`,
-    ],
-    { cwd: appDirectory, stdio: "pipe" },
-  );
+async function fixtureRow(env: CloudflareEnv, id: string) {
+  const stored = await env.KNOWLEDGE_BUCKET.get("knowledge/index.json");
+  const index = stored
+    ? z
+        .object({
+          articles: z.array(articleRowSchema),
+          translations: z.array(articleTranslationRowSchema),
+        })
+        .parse(await stored.json())
+    : { articles: [], translations: [] };
+  index.articles.push({
+    id,
+    title: "Reading recovery",
+    summary: "Recovery fixture",
+    contentHash: "a".repeat(64),
+    tagsJson: '["daily"]',
+    visibility: "private",
+    createdAt: "2026-09-01T00:00:00.000Z",
+    updatedAt: "2026-09-01T00:00:00.000Z",
+  });
+  await env.KNOWLEDGE_BUCKET.put("knowledge/index.json", JSON.stringify(index));
 }
+
+const testEnvironment = () =>
+  getPlatformProxy<CloudflareEnv>({
+    configPath: fileURLToPath(new URL("wrangler.test.json", appDirectory)),
+    persist: { path: fileURLToPath(new URL(".wrangler/test-state/v3", appDirectory)) },
+  });
 
 test("keeps stored invalid embeds readable and editable", async ({ page }, testInfo) => {
   const errors: string[] = [];
@@ -34,12 +48,9 @@ test("keeps stored invalid embeds readable and editable", async ({ page }, testI
     if (message.type() === "error" || message.type() === "warning") errors.push(message.text());
   });
   const id = randomUUID();
-  const { env, dispose } = await getPlatformProxy<CloudflareEnv>({
-    configPath: fileURLToPath(new URL("wrangler.test.json", appDirectory)),
-    persist: { path: fileURLToPath(new URL(".wrangler/test-state/v3", appDirectory)) },
-  });
+  const { env, dispose } = await testEnvironment();
   try {
-    fixtureRow(id);
+    await fixtureRow(env, id);
     await env.KNOWLEDGE_BUCKET.put(
       `knowledge/${id}/zh.md`,
       "---\ntitle: Reading recovery\nsummary: Recovery fixture\ntags: [daily]\n---\nBefore the block.\n\n```embed:article\nid: removed-target\n```\n\nAfter the block.\n",
@@ -67,7 +78,12 @@ test("shows recoverable error and not-found pages at reading width", async ({ pa
     if (message.type() === "error") errors.push(message.text());
   });
   const id = randomUUID();
-  fixtureRow(id);
+  const { env, dispose } = await testEnvironment();
+  try {
+    await fixtureRow(env, id);
+  } finally {
+    await dispose();
+  }
   await page.goto(`/articles/${id}`);
   await expect(page.getByRole("heading", { name: "这页暂时无法载入。" })).toBeVisible();
   await page.getByRole("button", { name: "重新载入", exact: true }).focus();

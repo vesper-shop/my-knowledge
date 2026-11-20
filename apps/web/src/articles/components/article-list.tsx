@@ -34,11 +34,7 @@ export function ArticleList({
                   article.editions.zh;
                 return (
                   <li key={article.id}>
-                    <IntentLink
-                      className="article-preview"
-                      href={`/articles/${article.id}`}
-                      aria-label={edition.title}
-                    >
+                    <IntentLink className="article-preview" href={`/articles/${article.id}`}>
                       <span className="article-preview-heading">
                         <span className="article-preview-title">{edition.title}</span>
                         <span className="article-visibility">{article.visibility}</span>

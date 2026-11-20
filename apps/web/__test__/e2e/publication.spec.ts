@@ -110,19 +110,19 @@ test("keeps the list visible while an article loads and restores its position", 
   await page.screenshot({ path: testInfo.outputPath("list-after-article-return.png") });
 });
 
-test("signs in through you-find.me without a duplicated archive", async ({ page }, testInfo) => {
-  let provider: unknown;
-  await page.route("**/api/auth/sign-in/social", async (route) => {
-    provider = route.request().postDataJSON().provider;
-    await route.fulfill({ json: { url: "/explore", redirect: false } });
+test("signs in through Vesper without a duplicated archive", async ({ page }, testInfo) => {
+  let signIn: string | undefined;
+  await page.route("**/api/auth/sign-in?**", async (route) => {
+    signIn = route.request().url();
+    await route.fulfill({ status: 302, headers: { location: "/explore" } });
   });
   await page.goto("/explore");
   await expect(page.locator("main .article-list")).toHaveCount(0);
   await page.getByRole("searchbox", { name: "搜索文章" }).focus();
   await expect(page.locator(":focus-visible")).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath("search-focused.png") });
-  await page.getByRole("button", { name: "使用 you-find.me 登录" }).click();
-  await expect.poll(() => provider).toBe("you-find-me");
+  await page.getByRole("button", { name: "使用 Vesper 登录" }).click();
+  await expect.poll(() => signIn && new URL(signIn).searchParams.get("next")).toBe("/explore");
 });
 
 test("renders the current Japanese translation under a Japanese interface", async ({
@@ -328,7 +328,7 @@ test("searches public articles by keyword", async ({ page }, testInfo) => {
   await page.getByRole("searchbox", { name: "搜索文章" }).fill("相关实践");
   await page.getByRole("button", { name: "搜索", exact: true }).click();
   await expect(page).toHaveURL(/\?query=/u);
-  await expect(page.getByRole("link", { name: "相关实践", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: /^相关实践/u })).toBeVisible();
 });
 
 test("prefetches prose links before clicking and keeps navigation in the client", async ({
@@ -455,7 +455,7 @@ test("matches the design theme and preserves it through a keyboard toggle", asyn
   const dark = testInfo.project.name.includes("dark");
   await expect(page.locator("body")).toHaveCSS(
     "background-color",
-    dark ? "rgb(28, 32, 31)" : "rgb(246, 246, 242)",
+    dark ? "rgb(17, 20, 19)" : "rgb(246, 246, 242)",
   );
   await expect(page.locator(".markdown-body")).toHaveCSS("font-size", "16px");
   await page.goto("/");
@@ -467,13 +467,13 @@ test("matches the design theme and preserves it through a keyboard toggle", asyn
   await page.keyboard.press("Enter");
   await expect(page.locator("body")).toHaveCSS(
     "background-color",
-    dark ? "rgb(246, 246, 242)" : "rgb(28, 32, 31)",
+    dark ? "rgb(246, 246, 242)" : "rgb(17, 20, 19)",
   );
   await page.goto("/articles/11111111-1111-4111-8111-111111111111");
   await expect(page.locator(".site-masthead")).toBeHidden();
   await expect(page.locator("body")).toHaveCSS(
     "background-color",
-    dark ? "rgb(246, 246, 242)" : "rgb(28, 32, 31)",
+    dark ? "rgb(246, 246, 242)" : "rgb(17, 20, 19)",
   );
   await page.screenshot({ path: testInfo.outputPath("theme.png") });
 });
@@ -502,7 +502,7 @@ test("keeps the shared layout, type and shapes consistent across main pages", as
         () => document.documentElement.scrollWidth <= document.documentElement.clientWidth,
       ),
     ).toBe(true);
-    await expect(page.locator(".site-controls")).toHaveCSS("position", "relative");
+    await expect(page.locator(".site-shell")).toBeVisible();
     if (path === "/explore") {
       await expect(page.locator('form[role="search"]')).toHaveCSS("border-radius", "7px");
       await expect(page.locator('form[role="search"] button')).toHaveCSS("border-radius", "9999px");
@@ -535,7 +535,7 @@ test("retains search context and inherits Home settings without reading controls
   );
   await page.locator(".article-preview").first().click();
   await expect(page.locator(".site-masthead")).toBeHidden();
-  await expect(page.locator(".site-controls")).toBeHidden();
+  await expect(page.locator(".site-shell")).toBeHidden();
   await expect(page.locator(".reading-controls")).toHaveCount(0);
   await expect(page.locator("article")).toHaveAttribute("lang", "en");
   await expect(
@@ -563,7 +563,7 @@ test("switches article list titles and summaries with the Home language setting"
   await page.screenshot({ path: testInfo.outputPath("localized-list.png"), fullPage: true });
   await entry.click();
   await expect(page.locator("article")).toHaveAttribute("lang", "ja");
-  await expect(page.locator(".site-controls")).toBeHidden();
+  await expect(page.locator(".site-shell")).toBeHidden();
 });
 
 test("keeps navigation compact and copies a clean article link", async ({

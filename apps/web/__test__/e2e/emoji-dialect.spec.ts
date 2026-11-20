@@ -14,7 +14,7 @@ test("renders selected stickers inline and preserves shortcode examples", async 
   page.on("pageerror", (error) => errors.push(error.message));
   // The local rate-limit fixture header must never reach third-party Cloudflare hosts.
   await page.route(
-    /^https:\/\/(?:stickers\.fullyst\.com|assets\.stickers\.wiki|szm\.de5\.net)\//u,
+    /^https:\/\/(?:knowledge\.you-find\.me|assets\.stickers\.wiki)\//u,
     async (route) => {
       const headers = { ...route.request().headers() };
       delete headers["cf-connecting-ip"];
@@ -35,7 +35,7 @@ test("renders selected stickers inline and preserves shortcode examples", async 
         title: `Image shortcodes ${testInfo.project.name}`,
         summary: "Inline sticker rendering and literal Markdown examples.",
         tags: ["daily/testing"],
-        body: "## 表情包\n\n撕梓咩 :suzume5_01: 白圣女 :baishengnv_01: 结束。\n\n相邻贴纸 :suzume5_30::baishengnv_117:。\n\n绿猫 :suzume_思考::suzume_期待: 绿猫 :suzume_出现::suzume_摸摸:。\n\n`示例 :suzume5_01:`\n\n```text\n:baishengnv_01:\n```\n\n未知 :missing_01:",
+        body: "## 表情包\n\n撕梓咩 :suzume5_01: 白圣女 :baishengnv_01: 结束。\n\n相邻贴纸 :suzume5_30::baishengnv_117:。\n\n绿猫 :suzume5_21::suzume5_08: 灯火橘 :denghuoju8_01::denghuoju8_66:。\n\n`示例 :suzume5_01:`\n\n```text\n:baishengnv_01:\n```\n\n未知 :missing_01:",
       },
     });
     expect(response.status()).toBe(201);

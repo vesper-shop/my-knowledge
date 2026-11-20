@@ -30,11 +30,11 @@
     "zod": "4.6.7"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "1.69.1",
+    "@cloudflare/vite-plugin": "1.70.0",
     "@tailwindcss/vite": "4.3.5",
     "@vitejs/plugin-react": "6.3.0",
     "tailwindcss": "4.3.5",
-    "vite": "npm:@voidzero-dev/vite-plus-core@1.6.0",
-    "wrangler": "4.162.0"
+    "vite": "npm:@voidzero-dev/vite-plus-core@8.3.8000",
+    "wrangler": "4.165.0"
   }
 }

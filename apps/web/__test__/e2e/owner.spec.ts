@@ -107,7 +107,7 @@ test("searches private articles by keyword without exposing them anonymously", a
   await page.goto("/explore");
   await page.getByRole("searchbox", { name: "搜索文章" }).fill("testing/privacy");
   await page.getByRole("button", { name: "搜索", exact: true }).click();
-  await expect(page.getByRole("link", { name: "私密删除夹具", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: /^私密删除夹具/u })).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath("owner-keyword-search.png"), fullPage: true });
   const anonymous = await browser.newContext({ storageState: { cookies: [], origins: [] } });
   try {
@@ -201,7 +201,10 @@ test("expands owner controls beside the preferences", async ({ page }, testInfo)
   await page.screenshot({ path: testInfo.outputPath("owner-header.png") });
 });
 
-test("points unauthenticated REST and MCP clients at Vesper", async ({ request }, testInfo) => {
+test("points unauthenticated REST and MCP clients at Vesper", async ({
+  request,
+  baseURL,
+}, testInfo) => {
   test.skip(testInfo.project.name !== "owner-desktop-light", "One API contract run is enough");
   const metadata = z
     .object({ resource: z.string(), authorization_servers: z.array(z.string()) })
@@ -221,8 +224,8 @@ test("points unauthenticated REST and MCP clients at Vesper", async ({ request }
     data: { jsonrpc: "2.0", id: 1, method: "server/discover", params: {} },
   });
   expect(mcp.status()).toBe(401);
-  expect(mcp.headers()["www-authenticate"]).toContain(
-    "https://knowledge.you-find.me/.well-known/oauth-protected-resource",
+  expect(mcp.headers()["www-authenticate"]).toBe(
+    `Bearer resource_metadata="${new URL("/.well-known/oauth-protected-resource", baseURL)}"`,
   );
 });
 

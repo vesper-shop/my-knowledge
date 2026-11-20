@@ -1,18 +1,20 @@
 # Sticker catalog
 
-The preferred green-cat pack is `suzume`: 16 named 300×300 images from
-[Suzume’s public collection](https://szm.de5.net/posts/suzume5/). Its contact sheet is excluded.
-Use `:suzume_思考:` or `:suzume_期待:`. Display preserves aspect ratio within 6rem.
-Existing `suzume5` (30 Fullyst references) and `baishengnv` (117 Stickers.wiki references)
-retain their published names. Never reuse names for different artwork.
+`suzume5` (撕梓咩 S5, 32 items) and `denghuoju8` (灯火橘8, 80 items) are mirrored from their
+Telegram sets `SuzumeS5` and `in_AJEJDC_by_NaiDrawBot` into R2 as
+`knowledge/img/sticker-<pack>-<name>.webp`, served immutably by `/img/{name}` at the site origin.
+Names are two-digit Telegram order, except `suzume5` 31–32, which were added later. The one
+video sticker (`denghuoju8_66`) is stored as animated WebP. Mirrors are owner-authorized; rights
+remain with their authors.
 
-The owner requested removal of the compressed 128px Combot packs `daimao2` and `denghuoju8`.
-Migrate article shortcodes before deploying their removal; unknown shortcodes remain literal.
-The catalog references remote images, without bundling artwork or implying a license grant.
-Rights and availability remain with authors/providers.
+The retired `suzume` key named 16 images from Suzume’s former site, which stopped serving them;
+articles moved to `suzume5` equivalents, and the key must not be reused. `baishengnv` references
+117 Stickers.wiki images. Never reuse names for different artwork; migrate
+article shortcodes before removing a pack, because unknown shortcodes remain literal.
 
 `packages/content/src/emoji-packs.json` matches Vesper's `crates/md-dialect/src/emoji-packs.json`.
 Packs contain `key` (ASCII alphanumeric), `name`, `display` (`emoji` or `sticker`), and `items`
 (`name`, HTTPS `value`). Item names exclude whitespace/colons. Duplicate shortcodes and URLs
 containing credentials are invalid. Matching is case-sensitive; code, math, links, image alt text
-and generated embeds stay unchanged. Compilation never downloads images or requires Telegram credentials.
+and generated embeds stay unchanged. Compilation never downloads images or requires Telegram
+credentials. Display preserves aspect ratio within 6rem.

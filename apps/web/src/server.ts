@@ -48,18 +48,23 @@ export default {
         ? `${articles.length}-${articles.reduce((latest, row) => (row.updatedAt > latest ? row.updatedAt : latest), "")}`
         : article && article.updatedAt;
     if (!version) return render(request, url);
+    const locale = resolveInterfaceI18n(undefined, request.headers.get("accept-language")).code;
+    const etag = `"${env.CF_VERSION_METADATA.id}:${locale}:${version}:${url.search}"`;
+    if (request.headers.get("if-none-match") === etag)
+      return new Response(null, {
+        status: 304,
+        headers: { "Cache-Control": "private, no-cache", ETag: etag },
+      });
     const key = new URL(url);
     key.searchParams.set("__version", version);
     key.searchParams.set("__deployment", env.CF_VERSION_METADATA.id);
-    key.searchParams.set(
-      "__locale",
-      resolveInterfaceI18n(undefined, request.headers.get("accept-language")).code,
-    );
+    key.searchParams.set("__locale", locale);
     const pages = await caches.open("pages");
     const cached = await pages.match(key);
     if (cached) {
       const hit = new Response(cached.body, cached);
       hit.headers.set("Cache-Control", "private, no-cache");
+      hit.headers.set("ETag", etag);
       return hit;
     }
     const response = await render(request, url);
@@ -67,6 +72,8 @@ export default {
     const stored = new Response(response.clone().body, response);
     stored.headers.set("Cache-Control", "public, max-age=86400");
     ctx.waitUntil(pages.put(key, stored));
+    response.headers.set("Cache-Control", "private, no-cache");
+    response.headers.set("ETag", etag);
     return response;
   },
 } satisfies ExportedHandler<CloudflareEnv>;

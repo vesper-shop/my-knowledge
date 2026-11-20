@@ -64,12 +64,12 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
     color-scheme: dark;
-    --background: #1c201f;
-    --foreground: #efefe7;
-    --muted: #272d29;
-    --muted-foreground: #b0b8ac;
-    --border: #3c453f;
-    --border-strong: #727d72;
+    --background: #111413;
+    --foreground: #ecece5;
+    --muted: #1c211f;
+    --muted-foreground: #a3ab9f;
+    --border: #2a312d;
+    --border-strong: #67726a;
     --primary: #afc3df;
     --amber: #dcc18d;
     --matcha: #b1bea0;
@@ -81,12 +81,12 @@
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --background: #1c201f;
-  --foreground: #efefe7;
-  --muted: #272d29;
-  --muted-foreground: #b0b8ac;
-  --border: #3c453f;
-  --border-strong: #727d72;
+  --background: #111413;
+  --foreground: #ecece5;
+  --muted: #1c211f;
+  --muted-foreground: #a3ab9f;
+  --border: #2a312d;
+  --border-strong: #67726a;
   --primary: #afc3df;
   --amber: #dcc18d;
   --matcha: #b1bea0;

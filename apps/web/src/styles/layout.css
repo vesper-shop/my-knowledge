@@ -460,8 +460,6 @@ button,
   gap: 0;
 }
 .site-actions .primary-navigation-link {
-  width: 2.25rem;
-  height: 2.25rem;
   justify-content: center;
   border: 0;
   border-radius: 50%;
@@ -481,8 +479,6 @@ button,
 .site-shell[hidden] {
   display: none;
 }
-.site-actions:hover .site-extra-actions,
-.site-actions:focus-within .site-actions,
 .site-preferences {
   gap: 0.125rem;
 }

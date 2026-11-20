@@ -36,8 +36,15 @@ export const Route = createRootRoute({
       { name: "description", content: siteDescription },
     ],
     links: [
-      { rel: "icon", href: "/logo.png?v=avatar" },
-      { rel: "apple-touch-icon", href: "/logo.png?v=avatar" },
+      { rel: "icon", href: "/logo.png" },
+      { rel: "apple-touch-icon", href: "/logo.png" },
+      {
+        rel: "preload",
+        href: "/fonts/geist-latin-wght-normal.woff2",
+        as: "font",
+        type: "font/woff2",
+        crossOrigin: "anonymous",
+      },
       { href: "/rss.xml", rel: "alternate", title: `${siteName} RSS`, type: "application/rss+xml" },
       { href: "/fonts/fonts.css", rel: "stylesheet" },
       { href: appStyles, rel: "stylesheet" },
