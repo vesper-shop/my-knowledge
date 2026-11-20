@@ -40,10 +40,6 @@
     ]
   },
   "exports": {
-    "ApiKeyDurableObject": {
-      "type": "durable-object",
-      "state": "deleted"
-    },
     "ArticleWriter": {
       "type": "durable-object",
       "storage": "sqlite"

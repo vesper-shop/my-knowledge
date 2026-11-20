@@ -1,4 +1,4 @@
-import { readArticleDocument } from "@my-knowledge/content";
+import { readArticleDocument, resolveLocale, type ArticleSummary } from "@my-knowledge/content";
 import { Markdown } from "@my-knowledge/ui";
 import { compileMarkdown } from "@my-knowledge/ui/markdown-compiler";
 import { createFileRoute, notFound, redirect } from "@tanstack/react-router";
@@ -6,7 +6,13 @@ import { createServerFn } from "@tanstack/react-start";
 import { env } from "cloudflare:workers";
 import { z } from "zod";
 
-import { getArticleEdition, getArticleMetadata, readEmbed } from "@/articles";
+import {
+  adjacentArticles,
+  getArticleEdition,
+  getArticleMetadata,
+  localizeArticles,
+  readEmbed,
+} from "@/articles";
 import { articleReturnHref } from "@/articles/navigation";
 import { ArticleAddress } from "@/articles/components/article-address";
 import { ArticleHeader } from "@/articles/components/article-header";
@@ -16,6 +22,7 @@ import {
   ArticleReturnLink,
 } from "@/articles/components/article-navigation-actions";
 import { articleOpenGraphVersion } from "@/articles/components/article-open-graph-card";
+import { ArticlePager } from "@/articles/components/article-pager";
 import type { ExistingArticleEditor } from "@/articles/types";
 import { ArticleEditorShell } from "@/articles/components/editor-shell";
 import { ReferencePosition } from "@/articles/components/reference-position";
@@ -93,12 +100,28 @@ const getArticlePage = createServerFn({ method: "GET" })
       renderingDiagram: i18n.messages.article.renderingDiagram,
       spatialView: i18n.messages.article.spatialView,
     };
-    const compiled = await compileMarkdown({
-      cache: article.visibility === "public" ? env.KNOWLEDGE_CACHE : null,
-      enrich: true,
-      labels,
-      markdown: document.body,
-    });
+    const [compiled, adjacent] = await Promise.all([
+      compileMarkdown({
+        cache: article.visibility === "public" ? env.KNOWLEDGE_CACHE : null,
+        enrich: true,
+        labels,
+        markdown: document.body,
+      }),
+      adjacentArticles(env, principal, article.id),
+    ]);
+    const neighbours = await localizeArticles(
+      env,
+      [adjacent.previous, adjacent.next].filter((summary) => summary !== null),
+      i18n.code,
+    );
+    const adjacentLink = (summary: ArticleSummary | null) => {
+      const localized = summary && neighbours.find(({ id }) => id === summary.id);
+      if (!localized) return null;
+      const edition =
+        localized.editions[resolveLocale(Object.keys(localized.editions), i18n.code) ?? "zh"] ??
+        localized.editions.zh;
+      return { href: `/articles/${localized.id}`, title: edition.title };
+    };
     return {
       compiled,
       context,
@@ -108,6 +131,8 @@ const getArticlePage = createServerFn({ method: "GET" })
       labels,
       lang: locale === "zh" ? "zh-CN" : locale,
       locale,
+      next: adjacentLink(adjacent.next),
+      previous: adjacentLink(adjacent.previous),
       returnHref,
       structuredData:
         article.visibility === "public"
@@ -238,6 +263,7 @@ function ArticlePage() {
           structuredBlock={StructuredBlock}
         />
         <ArticleAddress id={page.id} />
+        <ArticlePager messages={i18n.messages.article} next={page.next} previous={page.previous} />
         {page.structuredData === null ? null : (
           <script
             type="application/ld+json"

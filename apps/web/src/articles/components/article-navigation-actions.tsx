@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { ArticleReturnContext } from "./reading-trail";
-import { Share2, Pencil } from "@my-knowledge/ui/icons";
+import { Share2, Pencil, Undo2 } from "@my-knowledge/ui/icons";
 
 import { toast } from "@my-knowledge/ui/components/toast";
 
@@ -22,8 +22,8 @@ type ArticleReturnLinkProps = {
 export function ArticleReturnLink({ label, returnHref }: ArticleReturnLinkProps) {
   const destination = useContext(ArticleReturnContext) ?? returnHref;
   return (
-    <IntentLink className="article-return hover:text-foreground" href={destination}>
-      <span aria-hidden="true">← </span>
+    <IntentLink className="article-return" href={destination}>
+      <Undo2 aria-hidden="true" />
       {label}
     </IntentLink>
   );

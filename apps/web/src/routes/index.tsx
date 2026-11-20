@@ -52,7 +52,20 @@ function HomePage() {
       <ArticleList articles={articles} locale={i18n.code} empty={i18n.messages.articles.empty} />
       <footer className="home-footer">
         <a href="https://x.com/yiming9876" target="_blank" rel="noopener noreferrer">
-          @yiming9876
+          X
+        </a>
+        <a href="https://www.threads.com/@yiming0305" target="_blank" rel="noopener noreferrer">
+          Threads
+        </a>
+        <a
+          href="https://bsky.app/profile/yiming1234.bsky.social"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Bluesky
+        </a>
+        <a href="https://t.me/yiming1234" target="_blank" rel="noopener noreferrer">
+          Telegram
         </a>
         <a href="https://design.you-find.me" target="_blank" rel="noopener noreferrer">
           Design

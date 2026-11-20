@@ -466,8 +466,9 @@ test("renders article-list metadata cards and stages visibility until Save", asy
   expect(titleBox).not.toBeNull();
   expect(backBox).not.toBeNull();
   if (titleBox && backBox) {
-    expect(Math.abs(titleBox.x - backBox.x)).toBeLessThan(2);
-    expect(backBox.y + backBox.height).toBeLessThanOrEqual(titleBox.y);
+    if ((page.viewportSize()?.width ?? 0) >= 1024)
+      expect(backBox.x + backBox.width).toBeLessThanOrEqual(titleBox.x);
+    else expect(backBox.y + backBox.height).toBeLessThanOrEqual(titleBox.y);
   }
   await back.click();
   await expect(page).toHaveURL(new RegExp(`/articles/${article.id}$`));

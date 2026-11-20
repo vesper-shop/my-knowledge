@@ -34,6 +34,9 @@ export type InterfaceMessages = {
   };
   article: {
     previousPage: string;
+    adjacentArticles: string;
+    previousArticle: string;
+    nextArticle: string;
     copyLink: string;
     linkCopied: string;
     linkCopyFailed: string;

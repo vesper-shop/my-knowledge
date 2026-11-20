@@ -32,6 +32,9 @@ export const en = {
   },
   article: {
     previousPage: "Back",
+    adjacentArticles: "More articles",
+    previousArticle: "Previous",
+    nextArticle: "Next",
     copyLink: "Copy link",
     linkCopied: "Link copied",
     linkCopyFailed: "Could not copy the link. Try again.",

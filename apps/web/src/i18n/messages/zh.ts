@@ -32,6 +32,9 @@ export const zh = {
   },
   article: {
     previousPage: "返回",
+    adjacentArticles: "更多文章",
+    previousArticle: "上一篇",
+    nextArticle: "下一篇",
     copyLink: "复制链接",
     linkCopied: "链接已复制",
     linkCopyFailed: "复制失败，请重试。",

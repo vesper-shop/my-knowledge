@@ -32,6 +32,9 @@ export const ja = {
   },
   article: {
     previousPage: "戻る",
+    adjacentArticles: "前後の記事",
+    previousArticle: "前の記事",
+    nextArticle: "次の記事",
     copyLink: "リンクをコピー",
     linkCopied: "リンクをコピーしました",
     linkCopyFailed: "コピーできませんでした。もう一度お試しください。",

@@ -64,6 +64,17 @@ export async function listArticles(
   };
 }
 
+export async function adjacentArticles(env: CloudflareEnv, principal: Principal, id: string) {
+  const rows = (await readIndex(env)).articles
+    .filter(authorized(principal))
+    .filter(discoverable)
+    .sort(newestFirst);
+  const index = rows.findIndex((row) => row.id === id);
+  const summary = (row: ArticleRow | undefined) =>
+    index !== -1 && row ? articleSummary(row) : null;
+  return { next: summary(rows[index - 1]), previous: summary(rows[index + 1]) };
+}
+
 export async function listPublicArticleSummaries(env: CloudflareEnv): Promise<ArticleSummary[]> {
   return (await readIndex(env)).articles
     .filter((row) => row.visibility === "public" && discoverable(row))

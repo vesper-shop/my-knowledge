@@ -167,9 +167,10 @@ test("renders the current Japanese translation under a Japanese interface", asyn
   const returnBox = await returnLink.boundingBox();
   if (!headingBox || !returnBox)
     throw new Error("Article title and return link were not measurable");
-  expect(Math.abs(headingBox.x - returnBox.x)).toBeLessThan(2);
-  expect(returnBox.y + returnBox.height).toBeLessThanOrEqual(headingBox.y);
-  await page.screenshot({ path: testInfo.outputPath("top-left-return.png") });
+  if ((page.viewportSize()?.width ?? 0) >= 1024)
+    expect(returnBox.x + returnBox.width).toBeLessThanOrEqual(headingBox.x);
+  else expect(returnBox.y + returnBox.height).toBeLessThanOrEqual(headingBox.y);
+  await page.screenshot({ path: testInfo.outputPath("title-left-return.png") });
   await expect(page.locator(".site-identity")).toHaveCount(0);
   await expect(page.locator(".callout")).toHaveCount(1);
   await expect(page.locator('pre.shiki[data-language="ts"]')).toHaveCount(1);

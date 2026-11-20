@@ -10,6 +10,7 @@ export function IntentLink({
   children: ReactNode;
   className?: string | undefined;
   title?: string | undefined;
+  rel?: string | undefined;
   "aria-label"?: string | undefined;
   "aria-current"?: AriaAttributes["aria-current"];
 }) {
